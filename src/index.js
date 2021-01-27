@@ -1,14 +1,23 @@
-// import _ from 'lodash';
-// import './style.css';
+// import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
 
-const printAuthor = () => {
-  const element = document.createElement('div');
-  element.classList.add('text-center');
-  element.innerHTML = 'created by <a href="https://github.com/ysemenyuk/frontend-project-lvl3" target="_blank">y.semenyuk</a>';
-  const footerConteiner = document.querySelector('.container-xl');
-  footerConteiner.append(element);
-  return element;
+const getResponse = () => {
+  const form = document.querySelector('form');
+  // const feeds = document.querySelector('.feeds');
+  // const posts = document.querySelector('.posts');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const url = formData.get('url');
+    console.log(1, url);
+
+    axios.get(url)
+      .then((response) => {
+        console.log(response.data);
+      });
+  });
 };
 
-printAuthor();
+getResponse();
