@@ -1,13 +1,14 @@
-import _ from 'lodash';
-import './style.css';
+// import _ from 'lodash';
+// import './style.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function component() {
+const printAuthor = () => {
   const element = document.createElement('div');
-  element.textContent = _.join(['Hello', 'webpack', '!!!'], ' ');
-  element.classList.add('hello');
-  document.body.prepend(element);
+  element.classList.add('text-center');
+  element.innerHTML = 'created by <a href="https://github.com/ysemenyuk/frontend-project-lvl3" target="_blank">y.semenyuk</a>';
+  const footerConteiner = document.querySelector('.container-xl');
+  footerConteiner.append(element);
   return element;
-}
+};
 
-component();
+printAuthor();
