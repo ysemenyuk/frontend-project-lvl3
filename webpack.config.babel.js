@@ -1,9 +1,10 @@
-const path = require('path');
-// eslint-disable-next-line import/no-extraneous-dependencies
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+import path from 'path';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+// import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-module.exports = {
+export default {
   mode: 'development',
+  target: 'node',
   entry: './src/index.js',
   output: {
     filename: 'main.js',
@@ -14,12 +15,7 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-          },
-        },
+        use: ['babel-loader'],
       },
       {
         test: /\.css$/,
@@ -27,10 +23,10 @@ module.exports = {
       },
     ],
   },
-  // devtool: 'inline-source-map',
   plugins: [
     new HtmlWebpackPlugin({
       template: 'src/index.html',
     }),
+    // new MiniCssExtractPlugin(),
   ],
 };
