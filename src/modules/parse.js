@@ -1,7 +1,7 @@
 /* eslint-disable object-curly-newline */
 const parse = (data) => {
   const domparser = new DOMParser();
-  const doc = domparser.parseFromString(data, 'text/xml');
+  const doc = domparser.parseFromString(data, 'application/xml');
   console.dir(doc);
   const channel = doc.querySelector('channel');
   const feedTitle = channel.querySelector('title').textContent;

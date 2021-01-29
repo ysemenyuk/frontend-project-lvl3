@@ -1,86 +1,95 @@
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 // import * as yup from 'yup';
-// import onChange from 'on-change';
 
-// import render from './render.js';
-import parse from './parse.js';
+import view from './modules/view.js';
+import parse from './modules/parse.js';
+
+const validate = (state, value) => {
+  if (state.urls.includes(value)) {
+    // feedback.textContent = statusMessage.exist;
+    return 'existUrl';
+  }
+  return null;
+  // const schema = yup
+  //   .string()
+  //   .trim()
+  //   .required();
+
+  // try {
+  //   schema.validateSync(value);
+  //   return null;
+  // } catch (err) {
+  //   return err.message;
+  // }
+};
+
+// const valideData = (data) => {
+
+// };
 
 const app = () => {
   const state = {
     urls: [],
     feeds: [],
     posts: [],
-    formState: '',
+    formStatus: '',
     errors: '',
+    valid: '',
   };
 
-  // const watchedState = onChange(state, (path, value) => {
-  //   console.log(path, value);
-  //   render(watchedState);
-  // });
+  // const selectors = {
+  //   form: 'form',
+  //   feedsCol: '.feeds',
+  //   postsCol: '.posts',
+  //   feedback: '.feedback',
+  // };
 
-  const statusMessage = {
-    error: 'Network error',
-    loading: 'Loading...',
-    loaded: 'Rss has been loaded',
-    exist: 'Rss already exists',
-    badSource: 'This source doesnt contain valid rss',
-    notValidUrl: 'Must be valid url',
+  const elements = {
+    form: document.querySelector('form'),
+    feedsCol: document.querySelector('.feeds'),
+    postsCol: document.querySelector('.posts'),
+    feedback: document.querySelector('.feedback'),
   };
 
-  const form = document.querySelector('form');
-  const feedsCol = document.querySelector('.feeds');
-  const postsCol = document.querySelector('.posts');
-  const feedback = document.querySelector('.feedback');
+  const watched = view(state, elements);
 
-  form.addEventListener('submit', (e) => {
+  elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const formData = new FormData(form);
+    // console.log(e.target);
+
+    const formData = new FormData(e.target);
     const url = formData.get('url');
-    // console.log(1, url);
-    if (state.urls.includes(url)) {
-      feedback.textContent = statusMessage.exist;
+    // console.log(url);
+
+    const valid = validate(state, url);
+    if (valid) {
+      watched.formStatus = valid;
       return;
     }
-    state.urls.push(url);
-    feedback.textContent = statusMessage.loading;
+    watched.urls.push(url);
+    watched.formStatus = 'loading';
+
     axios.get(url)
       .then((response) => {
-        // console.log(response.data);
-        feedback.textContent = statusMessage.loaded;
+        console.log('response.status', response.status);
+        console.log('response.headers', response.headers);
+        console.log('response.headers.content-type', response.headers['content-type']);
+        if (!response.headers['content-type'].includes('rss')) {
+          watched.formStatus = 'notRss';
+          return;
+        }
+
+        watched.formStatus = 'loaded';
         const { feed, feedPosts } = parse(response.data);
-        state.feeds.push(feed);
-        state.posts.push(...feedPosts);
-        console.log(state);
+        watched.feeds.push(feed);
+        watched.posts.push(...feedPosts);
+        // console.log(state);
       })
-      .then(() => {
-        // console.log(data);
-        const feedsTitle = document.createElement('h2');
-        feedsTitle.textContent = 'Feeds';
-        feedsCol.append(feedsTitle);
-        const feeds = document.createElement('ul');
-
-        (state.feeds).forEach(({ feedTitle, feedDescription }) => {
-          const feed = document.createElement('li');
-          feed.innerHTML = `<h3>${feedTitle}</h3><p>${feedDescription}</p>`;
-          feeds.append(feed);
-        });
-
-        feedsCol.append(feeds);
-
-        const postsTitle = document.createElement('h2');
-        postsTitle.textContent = 'Posts';
-        postsCol.append(postsTitle);
-        const posts = document.createElement('ul');
-
-        (state.posts).forEach(({ postTitle, postLink }) => {
-          const post = document.createElement('li');
-          post.innerHTML = `<a href="${postLink}">${postTitle}</a>`;
-          posts.append(post);
-        });
-
-        postsCol.append(posts);
+      .catch((err) => {
+        console.log(4, err.message);
+        watched.formStatus = 'error';
+        watched.errorMessage = err.message;
       });
   });
 };
