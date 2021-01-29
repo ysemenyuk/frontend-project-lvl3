@@ -1,27 +1,26 @@
 // import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-// import * as yup from 'yup';
+import * as yup from 'yup';
 
 import view from './modules/view.js';
 import parse from './modules/parse.js';
 
-const validate = (state, value) => {
-  if (state.urls.includes(value)) {
-    // feedback.textContent = statusMessage.exist;
-    return 'existUrl';
-  }
-  return null;
-  // const schema = yup
-  //   .string()
-  //   .trim()
-  //   .required();
+// const isExistUrl = (urls, url) => {
+//   if (urls.includes(url)) {
+//     return true;
+//   }
+//   return false;
+// };
 
-  // try {
-  //   schema.validateSync(value);
-  //   return null;
-  // } catch (err) {
-  //   return err.message;
-  // }
+const validInput = (value) => {
+  const schema = yup.string().url().required();
+
+  try {
+    schema.validateSync(value);
+    return null;
+  } catch (err) {
+    return err.message;
+  }
 };
 
 // const valideData = (data) => {
@@ -30,31 +29,30 @@ const validate = (state, value) => {
 
 const app = () => {
   const state = {
+    form: {
+      status: 'ready',
+      valid: true,
+      error: '',
+    },
     urls: [],
     feeds: [],
     posts: [],
-    formStatus: '',
-    errors: '',
-    valid: '',
   };
 
-  // const selectors = {
-  //   form: 'form',
-  //   feedsCol: '.feeds',
-  //   postsCol: '.posts',
-  //   feedback: '.feedback',
-  // };
-
-  const elements = {
-    form: document.querySelector('form'),
-    feedsCol: document.querySelector('.feeds'),
-    postsCol: document.querySelector('.posts'),
-    feedback: document.querySelector('.feedback'),
+  const selectors = {
+    form: 'form',
+    input: '[name="url"]',
+    button: '[type="submit"]',
+    feedsCol: '.feeds',
+    postsCol: '.posts',
+    feedback: '.feedback',
   };
 
-  const watched = view(state, elements);
+  const watched = view(state, selectors);
 
-  elements.form.addEventListener('submit', (e) => {
+  const form = document.querySelector('form');
+
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
     // console.log(e.target);
 
@@ -62,34 +60,35 @@ const app = () => {
     const url = formData.get('url');
     // console.log(url);
 
-    const valid = validate(state, url);
-    if (valid) {
-      watched.formStatus = valid;
+    const error = validInput(url);
+    if (error) {
+      watched.form = { status: 'error', valid: false, error };
       return;
     }
-    watched.urls.push(url);
-    watched.formStatus = 'loading';
 
-    axios.get(url)
+    if ((state.urls).includes(url)) {
+      watched.form = { status: 'existUrl', valid: false };
+      return;
+    }
+
+    watched.form = { status: 'loading', valid: true };
+
+    axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(url)}`)
       .then((response) => {
-        console.log('response.status', response.status);
-        console.log('response.headers', response.headers);
-        console.log('response.headers.content-type', response.headers['content-type']);
-        if (!response.headers['content-type'].includes('rss')) {
-          watched.formStatus = 'notRss';
+        // console.log('response.data', response.data);
+        if (!response.data.status.content_type.includes('rss')) {
+          watched.form = { status: 'notRss', valid: false };
           return;
         }
-
-        watched.formStatus = 'loaded';
-        const { feed, feedPosts } = parse(response.data);
+        watched.form = { status: 'loaded', valid: true };
+        watched.urls.push(url);
+        const { feed, feedPosts } = parse(response.data.contents);
         watched.feeds.push(feed);
-        watched.posts.push(...feedPosts);
-        // console.log(state);
+        watched.posts.push(feedPosts);
       })
       .catch((err) => {
-        console.log(4, err.message);
-        watched.formStatus = 'error';
-        watched.errorMessage = err.message;
+        console.log('catch:', err.message);
+        watched.form = { status: 'error', valid: false, error: err.message };
       });
   });
 };

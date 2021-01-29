@@ -1,7 +1,6 @@
 import onChange from 'on-change';
 
 const statusMessage = {
-  error: 'Network error',
   loading: 'Loading...',
   loaded: 'Rss has been loaded',
   existUrl: 'Rss already exists',
@@ -9,92 +8,118 @@ const statusMessage = {
   notValidUrl: 'Must be valid url',
 };
 
-// const state = {
-//   urls: [],
-//   feeds: [],
-//   posts: [],
-//   formStatus: '',
-//   errorMessage: '',
-//   valid: '',
-// };
+const renderForm = (form, selectors) => {
+  console.log('form.status', form.status);
+  // console.log('selector', selector);
+  const input = document.querySelector(selectors.input);
+  const button = document.querySelector(selectors.button);
+  const feedback = document.querySelector(selectors.feedback);
 
-// const elements = {
-//   form: document.querySelector('form'),
-//   feedsCol: document.querySelector('.feeds'),
-//   postsCol: document.querySelector('.posts'),
-//   feedback: document.querySelector('.feedback'),
-// };
+  feedback.innerHTML = '';
+  feedback.textContent = statusMessage[form.status];
 
-const renderStatus = (state, elements) => {
-  console.log('status', state.formStatus);
+  if (form.valid) {
+    feedback.classList.add('text-success');
+    feedback.classList.remove('text-danger');
+    input.classList.remove('is-invalid');
+  } else {
+    feedback.classList.remove('text-success');
+    feedback.classList.add('text-danger');
+    input.classList.add('is-invalid');
+  }
 
-  switch (state.formStatus) {
-    case 'existUrl':
-      // eslint-disable-next-line no-param-reassign
-      elements.feedback.textContent = statusMessage.existUrl;
-      break;
-    case 'notRss':
-      // eslint-disable-next-line no-param-reassign
-      elements.feedback.textContent = statusMessage.notRss;
-      break;
-    case 'loading':
-      // eslint-disable-next-line no-param-reassign
-      elements.feedback.textContent = statusMessage.loading;
-      break;
-    case 'loaded':
-      // eslint-disable-next-line no-param-reassign
-      elements.feedback.textContent = statusMessage.loaded;
-      break;
-    case 'error':
-      // eslint-disable-next-line no-param-reassign
-      elements.feedback.textContent = state.errorMessage;
-      break;
-    default:
-      console.log('Unknown status', state.formStatus);
+  if (form.status === 'error') {
+    feedback.textContent = form.error;
+  }
+
+  if (form.status === 'loading') {
+    button.setAttribute('disabled', true);
+    input.setAttribute('disabled', true);
+  } else {
+    button.removeAttribute('disabled');
+    input.removeAttribute('disabled');
+  }
+  if (form.status === 'loaded') {
+    input.value = '';
+    setTimeout(() => {
+      feedback.innerHTML = '';
+    }, 5000);
   }
 };
 
-const renderFeeds = (state, elements) => {
-  // eslint-disable-next-line no-param-reassign
-  elements.feedsCol.innerHTML = '';
+const renderFeeds = (feeds, parentSelector) => {
+  const feedsCol = document.querySelector(parentSelector);
+  feedsCol.innerHTML = '';
   const feedsTitle = document.createElement('h2');
   feedsTitle.textContent = 'Feeds';
-  elements.feedsCol.append(feedsTitle);
-  const feeds = document.createElement('ul');
+  feedsCol.append(feedsTitle);
+  const feedsList = document.createElement('ul');
+  feedsList.classList.add('list-group', 'mb-5');
 
-  state.feeds.forEach(({ feedTitle, feedDescription }) => {
+  feeds.slice().reverse().forEach(({ feedTitle, feedDescription }) => {
     const feed = document.createElement('li');
-    feed.innerHTML = `<h3>${feedTitle}</h3><p>${feedDescription}</p>`;
-    feeds.append(feed);
+    feed.classList.add('list-group-item');
+    feed.innerHTML = `<h4>${feedTitle}</h4><p>${feedDescription}</p>`;
+    feedsList.append(feed);
   });
 
-  elements.feedsCol.append(feeds);
+  feedsCol.append(feedsList);
 };
 
-const renderPosts = (state, elements) => {
-  // eslint-disable-next-line no-param-reassign
-  elements.postsCol.innerHTML = '';
-  const postsTitle = document.createElement('h2');
-  postsTitle.textContent = 'Posts';
-  elements.postsCol.append(postsTitle);
-  const posts = document.createElement('ul');
+const createPost = ({ postLink, postTitle }) => {
+  const post = document.createElement('li');
+  post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
-  state.posts.forEach(({ postTitle, postLink }) => {
-    const post = document.createElement('li');
-    post.innerHTML = `<a href="${postLink}">${postTitle}</a>`;
-    posts.append(post);
+  const link = document.createElement('a');
+  link.classList.add('fw-bold');
+  link.setAttribute('target', '_blank');
+  link.href = postLink;
+  link.textContent = postTitle;
+  post.append(link);
+
+  const button = document.createElement('button');
+  button.classList.add('btn', 'btn-primary', 'btn-sm');
+  button.textContent = 'Preview';
+  post.append(button);
+
+  return post;
+};
+
+const renderPosts = (posts, parentSelector) => {
+  const postsCol = document.querySelector(parentSelector);
+  postsCol.innerHTML = '';
+  postsCol.innerHTML = '<h2>Posts</h2>';
+
+  const postsList = document.createElement('ul');
+  postsList.classList.add('list-group', 'mb-5');
+
+  posts.slice().reverse().forEach((feedPosts) => {
+    feedPosts.forEach((feedPost) => {
+      const post = createPost(feedPost);
+      postsList.append(post);
+    });
   });
 
-  elements.postsCol.append(posts);
+  postsCol.append(postsList);
 };
 
-const view = (state, elements) => {
+const view = (state, selectors) => {
   const watchedState = onChange(state, (path, value) => {
-    console.log(1, path, value);
-    console.log(2, state);
-    renderStatus(state, elements);
-    renderFeeds(state, elements);
-    renderPosts(state, elements);
+    console.log(1, { path, value });
+    // console.log(2, state);
+    switch (path) {
+      case 'form':
+        renderForm(state.form, selectors);
+        break;
+      case 'feeds':
+        renderFeeds(state.feeds, selectors.feedsCol);
+        break;
+      case 'posts':
+        renderPosts(state.posts, selectors.postsCol);
+        break;
+      default:
+        console.log(2, { path, value });
+    }
   });
 
   return watchedState;
