@@ -1,6 +1,6 @@
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-// import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 export default {
   mode: 'development',
@@ -27,6 +27,6 @@ export default {
     new HtmlWebpackPlugin({
       template: 'src/index.html',
     }),
-    // new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin(),
   ],
 };
