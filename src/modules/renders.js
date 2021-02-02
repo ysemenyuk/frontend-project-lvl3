@@ -1,71 +1,89 @@
 import i18n from 'i18next';
-// import { formHandler } from './handlers';
 
-const renderForm = (state, selectors) => {
-  // console.log('form.status', form.status);
-  // const form = document.querySelector(selectors.form);
-  const input = document.querySelector(selectors.input);
-  const button = document.querySelector(selectors.button);
-  const feedback = document.querySelector(selectors.feedback);
+export const renderForm = (state, elements) => {
+  const { feedback, button, input } = elements;
+  const { form } = state;
+  const clearLoadedInterval = 5000;
 
-  if (state.form.status === 'error') {
-    feedback.textContent = i18n.t(`feedback.${state.form.error}`);
-    feedback.classList.remove('text-success');
-    feedback.classList.add('text-danger');
-    input.classList.add('is-invalid');
-  } else {
-    feedback.textContent = i18n.t(`feedback.${state.form.status}`);
-    feedback.classList.add('text-success');
-    feedback.classList.remove('text-danger');
-    input.classList.remove('is-invalid');
-  }
-
-  if (state.form.status === 'loading') {
-    button.setAttribute('disabled', true);
-    input.setAttribute('disabled', true);
-  } else {
-    button.removeAttribute('disabled');
-    input.removeAttribute('disabled');
-  }
-
-  if (state.form.status === 'loaded') {
-    input.value = '';
-    setTimeout(() => {
-      feedback.innerHTML = '';
-    }, 10000);
+  switch (form.status) {
+    case 'init':
+      feedback.textContent = '';
+      feedback.classList.remove('text-success');
+      feedback.classList.remove('text-danger');
+      input.classList.remove('is-invalid');
+      input.removeAttribute('disabled');
+      button.removeAttribute('disabled');
+      break;
+    case 'loading':
+      feedback.textContent = i18n.t(`feedback.${form.status}`);
+      feedback.classList.add('text-success');
+      feedback.classList.remove('text-danger');
+      input.classList.remove('is-invalid');
+      button.setAttribute('disabled', true);
+      input.setAttribute('disabled', true);
+      break;
+    case 'loaded':
+      input.value = '';
+      feedback.textContent = i18n.t(`feedback.${form.status}`);
+      feedback.classList.add('text-success');
+      feedback.classList.remove('text-danger');
+      input.classList.remove('is-invalid');
+      button.removeAttribute('disabled');
+      input.removeAttribute('disabled');
+      setTimeout(() => {
+        feedback.textContent = '';
+      }, clearLoadedInterval);
+      break;
+    case 'error1':
+      feedback.textContent = i18n.t(`feedback.${form.error}`);
+      feedback.classList.remove('text-success');
+      feedback.classList.add('text-danger');
+      input.classList.add('is-invalid');
+      input.removeAttribute('disabled');
+      button.removeAttribute('disabled');
+      break;
+    case 'error2':
+      feedback.textContent = form.error;
+      feedback.classList.remove('text-success');
+      feedback.classList.add('text-danger');
+      input.classList.add('is-invalid');
+      button.removeAttribute('disabled');
+      input.removeAttribute('disabled');
+      break;
+    default:
+      console.log('form.status', form.status);
   }
 };
 
-const renderFeeds = (state, parentSelector) => {
-  const feedsCol = document.querySelector(parentSelector);
-  feedsCol.innerHTML = '';
-  const feedsTitle = document.createElement('h2');
-  feedsTitle.textContent = 'Feeds';
-  feedsCol.append(feedsTitle);
-  const feedsList = document.createElement('ul');
-  feedsList.classList.add('list-group', 'mb-5');
-
-  state.feeds.forEach(({ feedID, feedTitle, feedDescription }) => {
-    const feed = document.createElement('li');
-    feed.classList.add('list-group-item');
-    feed.setAttribute('data-feed-id', feedID);
-    feed.innerHTML = `<h4>${feedTitle}</h4><p>${feedDescription}</p>`;
-
-    const button = document.createElement('button');
-    button.classList.add('btn', 'btn-primary', 'btn-sm');
-    button.setAttribute('data-feed-id', feedID);
-    button.setAttribute('data-delete', '');
-    button.textContent = 'Delete this feed';
-    feed.append(button);
-
-    feedsList.append(feed);
-  });
-
-  feedsCol.append(feedsList);
+const createFeedEl = (feedItem) => {
+  const { feedID, feedTitle, feedDescription } = feedItem;
+  const feed = document.createElement('li');
+  feed.classList.add('list-group-item');
+  feed.setAttribute('data-feed-id', feedID);
+  feed.innerHTML = `<h4>${feedTitle}</h4><p>${feedDescription}</p>`;
+  return feed;
 };
 
-// eslint-disable-next-line object-curly-newline
-const createPost = ({ feedID, postID, postLink, postTitle }) => {
+export const renderFeeds = (state, elements) => {
+  const { feedsCol } = elements;
+
+  if (feedsCol.innerHTML === '') {
+    const feedsTitle = document.createElement('h2');
+    feedsTitle.textContent = 'Feeds';
+    feedsCol.append(feedsTitle);
+    const feedsList = document.createElement('ul');
+    feedsList.classList.add('list-group', 'mb-5');
+    feedsCol.append(feedsList);
+  }
+
+  const feedsList = feedsCol.querySelector('ul');
+  const feed = createFeedEl(state.newFeed);
+  feedsList.prepend(feed);
+};
+
+const createPostEl = (feedPost) => {
+  // eslint-disable-next-line object-curly-newline
+  const { feedID, postID, postLink, postTitle } = feedPost;
   const post = document.createElement('li');
   post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
   post.setAttribute('data-feed-id', feedID);
@@ -90,22 +108,26 @@ const createPost = ({ feedID, postID, postLink, postTitle }) => {
   return post;
 };
 
-const renderPosts = (state, parentSelector) => {
-  const postsCol = document.querySelector(parentSelector);
-  postsCol.innerHTML = '';
-  if (state.posts.length) {
+export const renderPosts = (state, elements) => {
+  const { postsCol } = elements;
+  if (postsCol.innerHTML === '') {
     postsCol.innerHTML = '<h2>Posts</h2>';
-
     const postsList = document.createElement('ul');
     postsList.classList.add('list-group', 'mb-5');
-
-    state.posts.forEach((feedPost) => {
-      const post = createPost(feedPost);
-      postsList.append(post);
-    });
-
     postsCol.append(postsList);
   }
+  const postsList = postsCol.querySelector('ul');
+  state.newPosts.forEach((feedPost) => {
+    const post = createPostEl(feedPost);
+    postsList.prepend(post);
+  });
 };
 
-export { renderForm, renderFeeds, renderPosts };
+export const renderReaded = (state, elements) => {
+  const { postsCol } = elements;
+  const readed = postsCol.querySelector(`[data-post-id="${state.readed}"]`);
+  console.log(state.readed);
+  console.log(readed);
+  readed.classList.remove('fw-bold');
+  readed.classList.add('fw-normal');
+};

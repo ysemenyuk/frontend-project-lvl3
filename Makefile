@@ -2,8 +2,7 @@ install:
 	npm ci
 
 build:
-	rm -rf public
-	npx webpack
+	NODE_ENV=production npx webpack
 
 test:
 	npm test

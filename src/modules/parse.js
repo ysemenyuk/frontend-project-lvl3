@@ -1,21 +1,28 @@
 const parse = (data, state) => {
   const domparser = new DOMParser();
-  const doc = domparser.parseFromString(data, 'application/xml');
-  // console.dir(doc);
+  const doc = domparser.parseFromString(data.contents, 'application/xml');
   const channel = doc.querySelector('channel');
   const feedTitle = channel.querySelector('title').textContent;
   const feedDescription = channel.querySelector('description').textContent;
-  const items = channel.querySelectorAll('item');
-
-  const feedPosts = [];
+  const feedLink = data.status.url;
   const feedID = state.feeds.length;
+
+  const feed = {
+    feedID,
+    feedTitle,
+    feedDescription,
+    feedLink,
+  };
+
+  const items = channel.querySelectorAll('item');
+  const feedPosts = [];
   let postID = state.posts.length;
 
   items.forEach((item) => {
     const postTitle = item.querySelector('title').textContent;
     const postLink = item.querySelector('link').textContent;
     const postDescription = item.querySelector('description').textContent;
-    feedPosts.push({
+    feedPosts.unshift({
       feedID,
       postID,
       postTitle,
@@ -25,7 +32,7 @@ const parse = (data, state) => {
     postID += 1;
   });
 
-  return { feed: { feedID, feedTitle, feedDescription }, feedPosts };
+  return { feed, feedPosts };
 };
 
 export default parse;

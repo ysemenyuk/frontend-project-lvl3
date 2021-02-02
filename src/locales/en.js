@@ -5,6 +5,8 @@ export default {
       ru: 'Русский',
     },
     feedback: {
+      init: 'Input RSS link',
+      filling: 'filling',
       loading: 'Loading...',
       loaded: 'Rss has been loaded',
       existUrl: 'Rss already exists',

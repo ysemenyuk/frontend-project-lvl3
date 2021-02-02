@@ -1,19 +1,28 @@
 import onChange from 'on-change';
-import { renderForm, renderFeeds, renderPosts } from './renders.js';
+import {
+  renderForm,
+  renderFeeds,
+  renderPosts,
+  renderReaded,
+} from './renders.js';
 
-const view = (state, selectors) => {
+const view = (state, elements) => {
+  renderForm(state, elements);
+
   const watchedState = onChange(state, (path, value) => {
-    console.log({ path, value });
-    console.log(state);
+    // console.log({ path, value });
     switch (path) {
       case 'form':
-        renderForm(state, selectors);
+        renderForm(state, elements);
         break;
-      case 'feeds':
-        renderFeeds(state, selectors.feedsCol);
+      case 'newFeed':
+        renderFeeds(state, elements);
         break;
-      case 'posts':
-        renderPosts(state, selectors.postsCol);
+      case 'newPosts':
+        renderPosts(state, elements);
+        break;
+      case 'readed':
+        renderReaded(state, elements);
         break;
       default:
         console.log({ path, value });
