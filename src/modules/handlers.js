@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
-import axios from 'axios';
 
 import parse from './parse.js';
 import {
+  getWithProxy,
   validInput,
   validUrl,
   validResponse,
@@ -10,7 +10,7 @@ import {
 } from './utils.js';
 
 const updateFeed = (url, watched, updateInterval) => {
-  axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(url)}`)
+  getWithProxy(url)
     .then((response) => {
       const { feedPosts } = parse(response.data, watched);
       const newPosts = checkNewPosts(watched.posts, feedPosts);
@@ -19,6 +19,10 @@ const updateFeed = (url, watched, updateInterval) => {
         watched.newPosts = [...newPosts];
       }
       setTimeout(() => updateFeed(url, watched, updateInterval), updateInterval);
+    })
+    .catch((err) => {
+      console.log('catch:', err.message);
+      throw err;
     });
 };
 
@@ -41,8 +45,9 @@ export const formHandler = (e, watched, updateInterval) => {
 
   watched.form = { status: 'loading', error: '' };
 
-  axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${encodeURIComponent(url)}`)
+  getWithProxy(url)
     .then((response) => {
+      // console.log(response.status);
       const errorRss = validResponse(response.data);
       if (errorRss) {
         watched.form = { status: 'error1', error: errorRss };

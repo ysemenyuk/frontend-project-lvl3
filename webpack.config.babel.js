@@ -18,6 +18,7 @@ export default {
       },
       {
         test: /\.css$/,
+        // exclude: /node_modules/,
         use: ['style-loader', 'css-loader'],
       },
     ],
@@ -28,4 +29,9 @@ export default {
     }),
     new MiniCssExtractPlugin(),
   ],
+  devServer: {
+    contentBase: path.resolve('public'),
+    compress: true,
+    port: 5000
+  }
 };

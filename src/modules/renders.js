@@ -3,17 +3,8 @@ import i18n from 'i18next';
 export const renderForm = (state, elements) => {
   const { feedback, button, input } = elements;
   const { form } = state;
-  const clearLoadedInterval = 5000;
 
   switch (form.status) {
-    case 'init':
-      feedback.textContent = '';
-      feedback.classList.remove('text-success');
-      feedback.classList.remove('text-danger');
-      input.classList.remove('is-invalid');
-      input.removeAttribute('disabled');
-      button.removeAttribute('disabled');
-      break;
     case 'loading':
       feedback.textContent = i18n.t(`feedback.${form.status}`);
       feedback.classList.add('text-success');
@@ -25,14 +16,8 @@ export const renderForm = (state, elements) => {
     case 'loaded':
       input.value = '';
       feedback.textContent = i18n.t(`feedback.${form.status}`);
-      feedback.classList.add('text-success');
-      feedback.classList.remove('text-danger');
-      input.classList.remove('is-invalid');
       button.removeAttribute('disabled');
       input.removeAttribute('disabled');
-      setTimeout(() => {
-        feedback.textContent = '';
-      }, clearLoadedInterval);
       break;
     case 'error1':
       feedback.textContent = i18n.t(`feedback.${form.error}`);
@@ -126,8 +111,6 @@ export const renderPosts = (state, elements) => {
 export const renderReaded = (state, elements) => {
   const { postsCol } = elements;
   const readed = postsCol.querySelector(`[data-post-id="${state.readed}"]`);
-  console.log(state.readed);
-  console.log(readed);
   readed.classList.remove('fw-bold');
   readed.classList.add('fw-normal');
 };

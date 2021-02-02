@@ -1,5 +1,11 @@
 import * as yup from 'yup';
 import { setLocale } from 'yup';
+import axios from 'axios';
+
+export const getWithProxy = (url) => {
+  const newUrl = encodeURIComponent(url);
+  return axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${newUrl}&disableCache=true`);
+};
 
 export const validInput = (value) => {
   setLocale({

@@ -7,8 +7,6 @@ import {
 } from './renders.js';
 
 const view = (state, elements) => {
-  renderForm(state, elements);
-
   const watchedState = onChange(state, (path, value) => {
     // console.log({ path, value });
     switch (path) {
