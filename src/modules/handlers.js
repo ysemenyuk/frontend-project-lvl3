@@ -2,55 +2,66 @@
 
 import parse from './parse.js';
 import {
-  getWithProxy,
+  getFeed,
   validInput,
   validUrl,
   validResponse,
-  checkNewPosts,
 } from './utils.js';
 
-const updateFeed = (url, watched, updateInterval) => {
-  getWithProxy(url)
+export const getNewPosts = (existsPost, downloadedPosts) => {
+  const [{ feedTitle }] = downloadedPosts;
+  const existsTitles = existsPost
+    .filter((post) => feedTitle === post.feedTitle)
+    .map((post) => post.postTitle);
+
+  const newPosts = downloadedPosts.filter((post) => !existsTitles.includes(post.postTitle));
+  return newPosts;
+};
+
+const updateFeed = (url, watched, updateTimeout) => {
+  getFeed(url)
     .then((response) => {
       const { feedPosts } = parse(response.data, watched);
-      const newPosts = checkNewPosts(watched.posts, feedPosts);
+      const newPosts = getNewPosts(watched.posts, feedPosts);
       if (newPosts.length) {
         watched.posts = [...newPosts, ...watched.posts];
         watched.newPosts = [...newPosts];
       }
-      setTimeout(() => updateFeed(url, watched, updateInterval), updateInterval);
     })
     .catch((err) => {
       console.log('catch:', err.message);
-      throw err;
+      // watched.form = { status: 'error', error: 'updateError' };
+    })
+    .finally(() => {
+      setTimeout(() => updateFeed(url, watched, updateTimeout), updateTimeout);
     });
 };
 
-export const formHandler = (e, watched, updateInterval) => {
+export const formHandler = (e, watched, updateTimeout) => {
   e.preventDefault();
   const formData = new FormData(e.target);
   const url = formData.get('url');
 
   const errorInput = validInput(url);
   if (errorInput) {
-    watched.form = { status: 'error1', error: errorInput };
+    watched.form = { status: 'error', error: errorInput };
     return;
   }
 
   const errorUrl = validUrl(url, watched.feeds);
   if (errorUrl) {
-    watched.form = { status: 'error1', error: errorUrl };
+    watched.form = { status: 'error', error: errorUrl };
     return;
   }
 
   watched.form = { status: 'loading', error: '' };
 
-  getWithProxy(url)
+  getFeed(url)
     .then((response) => {
       // console.log(response.status);
       const errorRss = validResponse(response.data);
       if (errorRss) {
-        watched.form = { status: 'error1', error: errorRss };
+        watched.form = { status: 'error', error: errorRss };
         return;
       }
 
@@ -61,36 +72,33 @@ export const formHandler = (e, watched, updateInterval) => {
       watched.posts = [...feedPosts, ...watched.posts];
       watched.newPosts = [...feedPosts];
 
-      setTimeout(() => updateFeed(url, watched, updateInterval), updateInterval);
+      setTimeout(() => updateFeed(url, watched, updateTimeout), updateTimeout);
     })
     .catch((err) => {
       console.log('catch:', err.message);
-      watched.form = { status: 'error2', error: err.message };
+      watched.form = { status: 'error', error: 'networkError' };
     });
 };
 
+const makeModal = (id, posts) => {
+  const modal = document.querySelector('#modal');
+  const modalTitle = modal.querySelector('.modal-title');
+  const modalBody = modal.querySelector('.modal-body');
+  const fullArticle = modal.querySelector('.full-article');
+
+  const post = posts.find(({ postID }) => postID === id);
+  const { postTitle, postDescription, postLink } = post;
+
+  modalTitle.textContent = postTitle;
+  modalBody.textContent = postDescription;
+  fullArticle.href = postLink;
+};
+
 export const postsHandler = (e, watched) => {
-  // e.preventDefault();
-  // console.dir(e.target);
-
-  if (e.target.tagName === 'A') {
-    const id = e.target.getAttribute('data-post-id');
-    watched.readed = id;
-  }
-  if (e.target.tagName === 'BUTTON') {
-    const id = e.target.getAttribute('data-post-id');
+  if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+    const id = parseInt(e.target.getAttribute('data-post-id'), 10);
     watched.readed = id;
 
-    const modal = document.querySelector('#modal');
-    const modalTitle = modal.querySelector('.modal-title');
-    const modalBody = modal.querySelector('.modal-body');
-    const fullArticle = modal.querySelector('.full-article');
-
-    const [post] = watched.posts.filter((i) => i.postID.toString() === id);
-    const { postTitle, postDescription, postLink } = post;
-
-    modalTitle.textContent = postTitle;
-    modalBody.textContent = postDescription;
-    fullArticle.href = postLink;
+    makeModal(id, watched.posts);
   }
 };

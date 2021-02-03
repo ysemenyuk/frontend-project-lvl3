@@ -6,14 +6,13 @@ export default {
     },
     feedback: {
       init: 'Input RSS link',
-      filling: 'filling',
       loading: 'Loading...',
       loaded: 'Rss has been loaded',
       existUrl: 'Rss already exists',
       notRss: 'This source doesnt contain valid rss',
       notValidUrl: 'Must be valid url',
-      requiredInput: 'Input RSS link',
       networkError: 'Network Error',
+      updateError: 'Update Error',
     },
   },
 };

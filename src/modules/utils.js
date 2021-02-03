@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import { setLocale } from 'yup';
 import axios from 'axios';
 
-export const getWithProxy = (url) => {
+export const getFeed = (url) => {
   const newUrl = encodeURIComponent(url);
   return axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${newUrl}&disableCache=true`);
 };
@@ -37,14 +37,4 @@ export const validResponse = (data) => {
     return 'notRss';
   }
   return null;
-};
-
-export const checkNewPosts = (existsPost, downloadedPosts) => {
-  const [{ feedTitle }] = downloadedPosts;
-  const existsTitles = existsPost
-    .filter((post) => feedTitle === post.feedTitle)
-    .map((post) => post.postTitle);
-
-  const newPosts = downloadedPosts.filter((post) => !existsTitles.includes(post.postTitle));
-  return newPosts;
 };

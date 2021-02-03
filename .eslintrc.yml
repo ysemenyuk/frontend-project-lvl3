@@ -1,13 +1,13 @@
----
-
 plugins:
-  - jest
   - babel
+  - import
+  - jest
 
 env:
   node: true
   jest: true
   browser: true
+  es6: true
 
 parser: babel-eslint
 
@@ -17,7 +17,6 @@ parserOptions:
 
 extends:
   - 'airbnb-base'
-  - 'prettier'
   - 'plugin:jest/recommended'
 
 rules:

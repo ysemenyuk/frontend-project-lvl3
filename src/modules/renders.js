@@ -1,42 +1,42 @@
 import i18n from 'i18next';
 
-export const renderForm = (state, elements) => {
-  const { feedback, button, input } = elements;
+export const renderForm = (state) => {
   const { form } = state;
+  const feedback = document.querySelector('.feedback');
+  const button = document.querySelector('[type="submit"]');
+  const input = document.querySelector('[name="url"]');
 
   switch (form.status) {
+    case 'init':
+      feedback.textContent = '';
+      feedback.classList.remove('text-success');
+      feedback.classList.remove('text-danger');
+      input.classList.remove('is-invalid');
+      break;
     case 'loading':
       feedback.textContent = i18n.t(`feedback.${form.status}`);
       feedback.classList.add('text-success');
       feedback.classList.remove('text-danger');
       input.classList.remove('is-invalid');
-      button.setAttribute('disabled', true);
-      input.setAttribute('disabled', true);
+      button.disabled = true;
+      input.disabled = true;
       break;
     case 'loaded':
-      input.value = '';
       feedback.textContent = i18n.t(`feedback.${form.status}`);
-      button.removeAttribute('disabled');
-      input.removeAttribute('disabled');
+      input.value = '';
+      button.disabled = false;
+      input.disabled = false;
       break;
-    case 'error1':
+    case 'error':
       feedback.textContent = i18n.t(`feedback.${form.error}`);
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
       input.classList.add('is-invalid');
-      input.removeAttribute('disabled');
-      button.removeAttribute('disabled');
-      break;
-    case 'error2':
-      feedback.textContent = form.error;
-      feedback.classList.remove('text-success');
-      feedback.classList.add('text-danger');
-      input.classList.add('is-invalid');
-      button.removeAttribute('disabled');
-      input.removeAttribute('disabled');
+      button.disabled = false;
+      input.disabled = false;
       break;
     default:
-      console.log('form.status', form.status);
+      console.log('unknown form status:', form.status);
   }
 };
 
@@ -49,37 +49,42 @@ const createFeedEl = (feedItem) => {
   return feed;
 };
 
-export const renderFeeds = (state, elements) => {
-  const { feedsCol } = elements;
+export const renderFeeds = (state) => {
+  const feedsContainer = document.querySelector('.feeds');
 
-  if (feedsCol.innerHTML === '') {
+  if (feedsContainer.innerHTML === '') {
     const feedsTitle = document.createElement('h2');
     feedsTitle.textContent = 'Feeds';
-    feedsCol.append(feedsTitle);
+    feedsContainer.append(feedsTitle);
     const feedsList = document.createElement('ul');
     feedsList.classList.add('list-group', 'mb-5');
-    feedsCol.append(feedsList);
+    feedsContainer.append(feedsList);
   }
 
-  const feedsList = feedsCol.querySelector('ul');
+  const feedsList = feedsContainer.querySelector('ul');
   const feed = createFeedEl(state.newFeed);
   feedsList.prepend(feed);
 };
 
 const createPostEl = (feedPost) => {
-  // eslint-disable-next-line object-curly-newline
-  const { feedID, postID, postLink, postTitle } = feedPost;
+  const {
+    feedID,
+    postID,
+    postLink,
+    postTitle,
+  } = feedPost;
+
   const post = document.createElement('li');
   post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
   post.setAttribute('data-feed-id', feedID);
 
-  const link = document.createElement('a');
-  link.classList.add('fw-bold');
-  link.setAttribute('target', '_blank');
-  link.setAttribute('data-post-id', postID);
-  link.href = postLink;
-  link.textContent = postTitle;
-  post.append(link);
+  const title = document.createElement('a');
+  title.classList.add('fw-bold');
+  title.setAttribute('target', '_blank');
+  title.setAttribute('data-post-id', postID);
+  title.href = postLink;
+  title.textContent = postTitle;
+  post.append(title);
 
   const button = document.createElement('button');
   button.classList.add('btn', 'btn-primary', 'btn-sm');
@@ -93,24 +98,26 @@ const createPostEl = (feedPost) => {
   return post;
 };
 
-export const renderPosts = (state, elements) => {
-  const { postsCol } = elements;
-  if (postsCol.innerHTML === '') {
-    postsCol.innerHTML = '<h2>Posts</h2>';
+export const renderPosts = (state) => {
+  const postsContainer = document.querySelector('.posts');
+
+  if (postsContainer.innerHTML === '') {
+    postsContainer.innerHTML = '<h2>Posts</h2>';
     const postsList = document.createElement('ul');
     postsList.classList.add('list-group', 'mb-5');
-    postsCol.append(postsList);
+    postsContainer.append(postsList);
   }
-  const postsList = postsCol.querySelector('ul');
+
+  const postsList = postsContainer.querySelector('ul');
   state.newPosts.forEach((feedPost) => {
     const post = createPostEl(feedPost);
     postsList.prepend(post);
   });
 };
 
-export const renderReaded = (state, elements) => {
-  const { postsCol } = elements;
-  const readed = postsCol.querySelector(`[data-post-id="${state.readed}"]`);
-  readed.classList.remove('fw-bold');
-  readed.classList.add('fw-normal');
+export const renderReaded = (state) => {
+  const postsContainer = document.querySelector('.posts');
+  const postTitle = postsContainer.querySelector(`[data-post-id="${state.readed}"]`);
+  postTitle.classList.remove('fw-bold');
+  postTitle.classList.add('fw-normal');
 };

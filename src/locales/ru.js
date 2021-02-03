@@ -5,12 +5,14 @@ export default {
       ru: 'Русский',
     },
     feedback: {
+      init: 'Input RSS link',
       loading: 'Loading...',
       loaded: 'Rss has been loaded',
       existUrl: 'Rss already exists',
       notRss: 'This source doesnt contain valid rss',
       notValidUrl: 'Must be valid url',
-      required: 'Input RSS link',
+      networkError: 'Network Error',
+      updateError: 'Update Error',
     },
   },
 };

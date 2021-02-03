@@ -6,24 +6,24 @@ import {
   renderReaded,
 } from './renders.js';
 
-const view = (state, elements) => {
-  const watchedState = onChange(state, (path, value) => {
-    // console.log({ path, value });
+const view = (state) => {
+  const watchedState = onChange(state, (path) => {
+    // console.log('path:', { path });
     switch (path) {
       case 'form':
-        renderForm(state, elements);
+        renderForm(state);
         break;
       case 'newFeed':
-        renderFeeds(state, elements);
+        renderFeeds(state);
         break;
       case 'newPosts':
-        renderPosts(state, elements);
+        renderPosts(state);
         break;
       case 'readed':
-        renderReaded(state, elements);
+        renderReaded(state);
         break;
       default:
-        console.log({ path, value });
+        console.log('unknown path:', { path });
     }
   });
 

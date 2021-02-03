@@ -1,6 +1,3 @@
-// import axios from 'axios';
-// import * as yup from 'yup';
-// import { setLocale } from 'yup';
 import i18n from 'i18next';
 import resources from './locales/index.js';
 
@@ -9,7 +6,7 @@ import { formHandler, postsHandler } from './modules/handlers.js';
 
 const app = () => {
   const defaultLanguage = 'en';
-  const updateIntervalForFeed = 5000;
+  const updateTimeout = 5000;
 
   i18n.init({
     lng: defaultLanguage,
@@ -28,19 +25,13 @@ const app = () => {
     newPosts: [],
   };
 
-  const elements = {
-    form: document.querySelector('form'),
-    input: document.querySelector('[name="url"]'),
-    button: document.querySelector('[type="submit"]'),
-    feedback: document.querySelector('.feedback'),
-    feedsCol: document.querySelector('.feeds'),
-    postsCol: document.querySelector('.posts'),
-  };
+  const watched = view(state);
 
-  const watched = view(state, elements);
+  const form = document.querySelector('form');
+  const postsContainer = document.querySelector('.posts');
 
-  elements.form.addEventListener('submit', (e) => formHandler(e, watched, updateIntervalForFeed));
-  elements.postsCol.addEventListener('click', (e) => postsHandler(e, watched));
+  form.addEventListener('submit', (e) => formHandler(e, watched, updateTimeout));
+  postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
 };
 
 export default app;
