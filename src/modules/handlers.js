@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-
+import uniqueId from 'lodash/uniqueId.js';
 import parse from './parse.js';
 import {
   getFeed,
@@ -8,20 +8,23 @@ import {
   validResponse,
 } from './utils.js';
 
-export const getNewPosts = (existsPost, downloadedPosts) => {
-  const [{ feedTitle }] = downloadedPosts;
+const getNewPosts = (existsPost, feedPosts) => {
+  const [{ feedTitle }] = feedPosts;
   const existsTitles = existsPost
     .filter((post) => feedTitle === post.feedTitle)
     .map((post) => post.postTitle);
 
-  const newPosts = downloadedPosts.filter((post) => !existsTitles.includes(post.postTitle));
+  const newPosts = feedPosts
+    .filter((post) => !existsTitles.includes(post.postTitle))
+    .map((post) => ({ ...post, postId: uniqueId() }));
+
   return newPosts;
 };
 
 const updateFeed = (url, watched, updateTimeout) => {
   getFeed(url)
     .then((response) => {
-      const { feedPosts } = parse(response.data, watched);
+      const { feedPosts } = parse(response.data);
       const newPosts = getNewPosts(watched.posts, feedPosts);
       if (newPosts.length) {
         watched.posts = [...newPosts, ...watched.posts];
@@ -39,8 +42,7 @@ const updateFeed = (url, watched, updateTimeout) => {
 
 export const formHandler = (e, watched, updateTimeout) => {
   e.preventDefault();
-  const formData = new FormData(e.target);
-  const url = formData.get('url');
+  const url = e.target.value;
 
   const errorInput = validInput(url);
   if (errorInput) {
@@ -58,7 +60,6 @@ export const formHandler = (e, watched, updateTimeout) => {
 
   getFeed(url)
     .then((response) => {
-      // console.log(response.status);
       const errorRss = validResponse(response.data);
       if (errorRss) {
         watched.form = { status: 'error', error: errorRss };
@@ -66,11 +67,17 @@ export const formHandler = (e, watched, updateTimeout) => {
       }
 
       watched.form = { status: 'loaded', error: '' };
-      const { feed, feedPosts } = parse(response.data, watched);
-      watched.feeds = [feed, ...watched.feeds];
+
+      const feedData = parse(response.data);
+
+      const feed = { ...feedData.feed, feedId: uniqueId() };
+      const feedPosts = feedData.posts.map((post) => ({ ...post, postId: uniqueId() }));
+
+      watched.allFeeds = [feed, ...watched.feeds];
       watched.newFeed = feed;
-      watched.posts = [...feedPosts, ...watched.posts];
-      watched.newPosts = [...feedPosts];
+
+      watched.allPosts = [...feedPosts, ...watched.posts];
+      watched.newPosts = feedPosts;
 
       setTimeout(() => updateFeed(url, watched, updateTimeout), updateTimeout);
     })

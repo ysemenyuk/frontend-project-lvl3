@@ -36,7 +36,7 @@ export const renderForm = (state) => {
       input.disabled = false;
       break;
     default:
-      console.log('unknown form status:', form.status);
+      throw new Error('unknown form status:', form.status);
   }
 };
 

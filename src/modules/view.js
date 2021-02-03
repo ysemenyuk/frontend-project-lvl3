@@ -13,9 +13,11 @@ const view = (state) => {
       case 'form':
         renderForm(state);
         break;
+      case 'feeds':
       case 'newFeed':
         renderFeeds(state);
         break;
+      case 'posts':
       case 'newPosts':
         renderPosts(state);
         break;
@@ -23,7 +25,7 @@ const view = (state) => {
         renderReaded(state);
         break;
       default:
-        console.log('unknown path:', { path });
+        throw new Error('unknown path:', path);
     }
   });
 
