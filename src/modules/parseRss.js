@@ -1,14 +1,19 @@
 const parse = (data) => {
   const domparser = new DOMParser();
   const doc = domparser.parseFromString(data.contents, 'application/xml');
-  console.log('doc:', doc);
-  const doc2 = domparser.parseFromString(data, 'application/xml');
-  console.log('doc2:', doc2);
+  // console.log('doc:', doc);
+
+  const rss = doc.querySelector('rss');
+  // console.log('rss', rss);
+
+  if (!rss) {
+    throw new Error('notRss');
+  }
 
   const channel = doc.querySelector('channel');
   const feedTitle = channel.querySelector('title').textContent;
   const feedDescription = channel.querySelector('description').textContent;
-  const feedLink = data.status.url;
+  const feedLink = channel.querySelector('link').textContent;
 
   const feed = {
     feedTitle,

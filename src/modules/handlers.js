@@ -1,12 +1,12 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
 import uniqueId from 'lodash/uniqueId.js';
-import parse from './parse.js';
+import parse from './parseRss.js';
 import {
   addProxy,
   validInput,
   validUrl,
-  validResponse,
+  // validResponse,
 } from './utils.js';
 
 const getNewPosts = (existsPost, feedPosts) => {
@@ -67,19 +67,17 @@ export const submitHandler = (e, watched, updateTimeout) => {
   axios.get(proxyUrl)
     .then((response) => {
       // console.log('response', response);
-      console.log('response.data', response.data);
 
-      const notRss = validResponse(response.data);
-      if (notRss) {
-        watched.form = { status: 'error', error: notRss };
-        return;
-      }
-
+      // const notRss = validResponse(response.data);
+      // if (notRss) {
+      //   watched.form = { status: 'error', error: notRss };
+      //   return;
+      // }
+      const feedData = parse(response.data);
       watched.form = { status: 'loaded', error: '' };
 
-      const feedData = parse(response.data);
       // console.log(feedData);
-      const feed = { ...feedData.feed, feedId: uniqueId() };
+      const feed = { ...feedData.feed, feedUrl: url, feedId: uniqueId() };
       const feedPosts = feedData.feedPosts.map((post) => ({ ...post, postId: uniqueId() }));
 
       watched.newFeed = feed;

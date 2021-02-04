@@ -30,7 +30,7 @@ export const validInput = (value) => {
 };
 
 export const validUrl = (url, existsFeeds) => {
-  const existsUrls = existsFeeds.map((item) => item.feedLink);
+  const existsUrls = existsFeeds.map((feed) => feed.feedUrl);
   if ((existsUrls).includes(url)) {
     return 'existUrl';
   }
@@ -38,10 +38,9 @@ export const validUrl = (url, existsFeeds) => {
 };
 
 export const validResponse = (data) => {
-  throw new Error(JSON.stringify(data));
   // console.log(data);
-  // if (!data.status.content_type || !data.status.content_type.includes('rss')) {
-  //   return 'notRss';
-  // }
-  // return null;
+  if (!data.status.content_type || !data.status.content_type.includes('rss')) {
+    return 'notRss';
+  }
+  return null;
 };
