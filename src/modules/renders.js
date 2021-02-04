@@ -28,7 +28,7 @@ export const renderForm = (state) => {
       input.disabled = false;
       break;
     case 'error':
-      feedback.textContent = i18n.t(`feedback.${form.error}`);
+      feedback.textContent = `catch error: ${form.error}`;
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
       input.classList.add('is-invalid');

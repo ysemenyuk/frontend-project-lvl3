@@ -33,7 +33,7 @@ const updateFeed = (url, watched, updateTimeout) => {
       }
     })
     .catch((err) => {
-      console.log('catch:', err.message);
+      console.log('catch update:', err.message);
       // watched.form = { status: 'error', error: 'updateError' };
     })
     .finally(() => {
@@ -91,8 +91,8 @@ export const submitHandler = (e, watched, updateTimeout) => {
       setTimeout(() => updateFeed(proxyUrl, watched, updateTimeout), updateTimeout);
     })
     .catch((err) => {
-      console.log('catch:', err.message);
-      watched.form = { status: 'error', error: 'networkError' };
+      console.log('catch submit:', err.message);
+      watched.form = { status: 'error', error: err.message };
     });
 };
 

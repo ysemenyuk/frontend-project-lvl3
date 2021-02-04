@@ -72,4 +72,7 @@ test('test3', async () => {
   await waitFor(() => {
     expect(feedback).toHaveTextContent('Rss has been loaded');
   });
+
+  expect(await screen.findByText(/Lorem ipsum feed for an interval/i)).toBeInTheDocument();
+  expect(await screen.findByText(/Lorem ipsum 2021-02-03T21:08:00Z/i)).toBeInTheDocument();
 });
