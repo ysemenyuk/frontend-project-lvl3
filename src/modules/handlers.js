@@ -67,7 +67,7 @@ export const submitHandler = (e, watched, updateTimeout) => {
   axios.get(proxyUrl)
     .then((response) => {
       // console.log('response', response);
-      // console.log('response.data', response.data);
+      console.log('response.data', response.data);
 
       const notRss = validResponse(response.data);
       if (notRss) {

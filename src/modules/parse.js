@@ -1,6 +1,10 @@
 const parse = (data) => {
   const domparser = new DOMParser();
   const doc = domparser.parseFromString(data.contents, 'application/xml');
+  console.log('doc:', doc);
+  const doc2 = domparser.parseFromString(data, 'application/xml');
+  console.log('doc2:', doc2);
+
   const channel = doc.querySelector('channel');
   const feedTitle = channel.querySelector('title').textContent;
   const feedDescription = channel.querySelector('description').textContent;
