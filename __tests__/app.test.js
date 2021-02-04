@@ -31,10 +31,10 @@ beforeEach(async () => {
 });
 
 test('test1 valid input', () => {
-  userEvent.type(input, '12345');
+  userEvent.type(input, 'notUrl');
   userEvent.click(submit);
 
-  expect(feedback).toHaveTextContent('Must be valid url');
+  expect(feedback).toHaveTextContent(/notValidUrl/i);
 });
 
 test('test2 network error', async () => {
@@ -48,10 +48,10 @@ test('test2 network error', async () => {
   userEvent.type(input, url);
   userEvent.click(submit);
 
-  expect(feedback).toHaveTextContent('Loading...');
+  expect(feedback).toHaveTextContent(/Loading.../i);
 
   await waitFor(() => {
-    expect(feedback).toHaveTextContent('Network Error');
+    expect(feedback).toHaveTextContent(/Request failed with status code 404/i);
   });
 });
 
