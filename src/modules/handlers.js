@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
 import uniqueId from 'lodash/uniqueId.js';
-import parse from './parseRss.js';
+import parseRss from './parseRss.js';
 import {
   addProxy,
   validInput,
@@ -25,7 +25,7 @@ const getNewPosts = (existsPost, feedPosts) => {
 const updateFeed = (url, watched, updateTimeout) => {
   axios.get(url)
     .then((response) => {
-      const { feedPosts } = parse(response.data);
+      const { feedPosts } = parseRss(response.data);
       const newPosts = getNewPosts(watched.allPosts, feedPosts);
       if (newPosts.length) {
         watched.allPosts = [...newPosts, ...watched.allPosts];
@@ -35,6 +35,7 @@ const updateFeed = (url, watched, updateTimeout) => {
     .catch((err) => {
       console.log('catch update:', err.message);
       // watched.form = { status: 'error', error: 'updateError' };
+      // throw new Error(err.message);
     })
     .finally(() => {
       setTimeout(() => updateFeed(url, watched, updateTimeout), updateTimeout);
@@ -73,7 +74,7 @@ export const submitHandler = (e, watched, updateTimeout) => {
       //   watched.form = { status: 'error', error: notRss };
       //   return;
       // }
-      const feedData = parse(response.data);
+      const feedData = parseRss(response.data);
       watched.form = { status: 'loaded', error: '' };
 
       // console.log(feedData);
@@ -90,7 +91,8 @@ export const submitHandler = (e, watched, updateTimeout) => {
     })
     .catch((err) => {
       console.log('catch submit:', err.message);
-      watched.form = { status: 'error', error: err.message };
+      watched.form = { status: 'error', error: 'networkError' };
+      // throw new Error(err.message);
     });
 };
 

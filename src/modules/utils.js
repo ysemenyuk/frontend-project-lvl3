@@ -8,7 +8,7 @@ export const addProxy = (url) => {
   // myURL.searchParams.append('url', url);
   // myURL.searchParams.append('disableCache', 'true');
   const proxyUrl = `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`;
-  console.log('addProxy', proxyUrl);
+  // console.log('addProxy', proxyUrl);
   return proxyUrl;
 };
 

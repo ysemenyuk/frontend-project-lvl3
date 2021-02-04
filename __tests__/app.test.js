@@ -34,7 +34,7 @@ test('test1 valid input', () => {
   userEvent.type(input, 'notUrl');
   userEvent.click(submit);
 
-  expect(feedback).toHaveTextContent(/notValidUrl/i);
+  expect(feedback).toHaveTextContent(/Must be valid url/i);
 });
 
 test('test2 network error', async () => {
@@ -51,7 +51,7 @@ test('test2 network error', async () => {
   expect(feedback).toHaveTextContent(/Loading.../i);
 
   await waitFor(() => {
-    expect(feedback).toHaveTextContent(/Request failed with status code 404/i);
+    expect(feedback).toHaveTextContent(/Network Error/i);
   });
 });
 
@@ -67,10 +67,10 @@ test('test3', async () => {
   userEvent.type(input, url);
   userEvent.click(submit);
 
-  expect(feedback).toHaveTextContent('Loading...');
+  expect(feedback).toHaveTextContent(/Loading.../i);
 
   await waitFor(() => {
-    expect(feedback).toHaveTextContent('Rss has been loaded');
+    expect(feedback).toHaveTextContent(/Rss has been loaded/i);
   });
 
   expect(await screen.findByText(/Lorem ipsum feed for an interval/i)).toBeInTheDocument();

@@ -9,7 +9,7 @@ export default {
       loading: 'Loading...',
       loaded: 'Rss has been loaded',
       existUrl: 'Rss already exists',
-      notRss: 'This source doesnt contain valid rss',
+      notRss: "This source doesn't contain valid rss",
       notValidUrl: 'Must be valid url',
       networkError: 'Network Error',
       updateError: 'Update Error',
