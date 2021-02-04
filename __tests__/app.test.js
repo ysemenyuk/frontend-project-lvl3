@@ -17,7 +17,6 @@ axios.defaults.adapter = httpAdapter;
 
 const pathToIndex = path.join('__fixtures__', 'index.html');
 const pathToResponse = path.join('__fixtures__', 'response.json');
-// const response = await fsp.readFile(pathToResponse, 'utf-8');
 
 let submit;
 let input;
@@ -28,11 +27,10 @@ beforeEach(async () => {
   submit = screen.getByRole('button');
   input = screen.getByRole('textbox');
   feedback = screen.getByRole('feedback');
-
   run();
 });
 
-test('test1 validate input', () => {
+test('test1 valid input', () => {
   userEvent.type(input, '12345');
   userEvent.click(submit);
 
@@ -42,8 +40,9 @@ test('test1 validate input', () => {
 test('test2 network error', async () => {
   const url = 'http://test.ru/feed';
 
-  nock('http://test.ru')
-    .get('/feed')
+  nock('https://hexlet-allorigins.herokuapp.com')
+    .get('/get')
+    .query({ url, disableCache: true })
     .reply(404, '');
 
   userEvent.type(input, url);
@@ -60,13 +59,10 @@ test('test3', async () => {
   const url = 'http://test.ru/feed';
   const response = await fsp.readFile(pathToResponse, 'utf-8');
 
-  nock('http://hexlet-allorigins.herokuapp.com')
-    .get('/get?url=http%3A%2F%2Ftest.ru%2Ffeed&disableCache=true')
+  nock('https://hexlet-allorigins.herokuapp.com')
+    .get('/get')
+    .query({ url, disableCache: true })
     .reply(200, response);
-
-  // nock('http://test.ru')
-  //   .get('/feed')
-  //   .reply(200, response);
 
   userEvent.type(input, url);
   userEvent.click(submit);

@@ -1,8 +1,9 @@
 /* eslint-disable no-param-reassign */
+import axios from 'axios';
 import uniqueId from 'lodash/uniqueId.js';
 import parse from './parse.js';
 import {
-  getFeed,
+  addProxy,
   validInput,
   validUrl,
   validResponse,
@@ -22,7 +23,7 @@ const getNewPosts = (existsPost, feedPosts) => {
 };
 
 const updateFeed = (url, watched, updateTimeout) => {
-  getFeed(url)
+  axios.get(url)
     .then((response) => {
       const { feedPosts } = parse(response.data);
       const newPosts = getNewPosts(watched.allPosts, feedPosts);
@@ -47,30 +48,30 @@ export const submitHandler = (e, watched, updateTimeout) => {
   const formData = new FormData(e.target);
   const url = formData.get('url');
 
-  console.log(url);
-
   const errorInput = validInput(url);
   if (errorInput) {
     watched.form = { status: 'error', error: errorInput };
     return;
   }
 
-  const errorUrl = validUrl(url, watched.allFeeds);
-  if (errorUrl) {
-    watched.form = { status: 'error', error: errorUrl };
+  const existUrl = validUrl(url, watched.allFeeds);
+  if (existUrl) {
+    watched.form = { status: 'error', error: existUrl };
     return;
   }
 
   watched.form = { status: 'loading', error: '' };
 
-  getFeed(url)
+  const proxyUrl = addProxy(url);
+
+  axios.get(proxyUrl.href)
     .then((response) => {
       // console.log('response', response);
       // console.log('response.data', response.data);
 
-      const errorRss = validResponse(response.data);
-      if (errorRss) {
-        watched.form = { status: 'error', error: errorRss };
+      const notRss = validResponse(response.data);
+      if (notRss) {
+        watched.form = { status: 'error', error: notRss };
         return;
       }
 
@@ -87,7 +88,7 @@ export const submitHandler = (e, watched, updateTimeout) => {
       watched.newPosts = feedPosts;
       watched.allPosts = [...feedPosts, ...watched.allPosts];
 
-      setTimeout(() => updateFeed(url, watched, updateTimeout), updateTimeout);
+      setTimeout(() => updateFeed(proxyUrl.href, watched, updateTimeout), updateTimeout);
     })
     .catch((err) => {
       console.log('catch:', err.message);
@@ -116,7 +117,6 @@ export const postsHandler = (e, watched) => {
     const id = e.target.getAttribute('data-post-id');
     // console.log(id);
     watched.readed = id;
-
     makeModal(id, watched.allPosts);
   }
 };

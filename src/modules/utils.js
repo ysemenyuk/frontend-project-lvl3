@@ -1,13 +1,14 @@
 import * as yup from 'yup';
 import { setLocale } from 'yup';
-import axios from 'axios';
+// import axios from 'axios';
 
-export const getFeed = (url) => {
-  const newUrl = encodeURIComponent(url);
-  console.log('getFeed', `https://hexlet-allorigins.herokuapp.com/get?url=${newUrl}&disableCache=true`);
-  return axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${newUrl}&disableCache=true`);
-  // console.log('getFeed', url);
-  // return axios.get(url);
+export const addProxy = (url) => {
+  const myURL = new URL('https://hexlet-allorigins.herokuapp.com');
+  myURL.pathname = '/get';
+  myURL.searchParams.append('url', url);
+  myURL.searchParams.append('disableCache', 'true');
+  // console.log('getFeed', myURL.href);
+  return myURL;
 };
 
 export const validInput = (value) => {
