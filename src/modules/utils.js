@@ -3,12 +3,13 @@ import { setLocale } from 'yup';
 // import axios from 'axios';
 
 export const addProxy = (url) => {
-  const myURL = new URL('https://hexlet-allorigins.herokuapp.com');
-  myURL.pathname = '/get';
-  myURL.searchParams.append('url', url);
-  myURL.searchParams.append('disableCache', 'true');
-  // console.log('getFeed', myURL.href);
-  return myURL;
+  // const myURL = new URL('https://hexlet-allorigins.herokuapp.com');
+  // myURL.pathname = '/get';
+  // myURL.searchParams.append('url', url);
+  // myURL.searchParams.append('disableCache', 'true');
+  const proxyUrl = `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`;
+  console.log('addProxy', proxyUrl);
+  return proxyUrl;
 };
 
 export const validInput = (value) => {

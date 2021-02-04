@@ -64,7 +64,7 @@ export const submitHandler = (e, watched, updateTimeout) => {
 
   const proxyUrl = addProxy(url);
 
-  axios.get(proxyUrl.href)
+  axios.get(proxyUrl)
     .then((response) => {
       // console.log('response', response);
       // console.log('response.data', response.data);
@@ -88,7 +88,7 @@ export const submitHandler = (e, watched, updateTimeout) => {
       watched.newPosts = feedPosts;
       watched.allPosts = [...feedPosts, ...watched.allPosts];
 
-      setTimeout(() => updateFeed(proxyUrl.href, watched, updateTimeout), updateTimeout);
+      setTimeout(() => updateFeed(proxyUrl, watched, updateTimeout), updateTimeout);
     })
     .catch((err) => {
       console.log('catch:', err.message);
