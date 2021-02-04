@@ -12,19 +12,20 @@ const parse = (data) => {
     feedLink,
   };
 
+  const feedPosts = [];
+
   const items = channel.querySelectorAll('item');
-  const feedPosts = items
-    .map((item) => {
-      const postTitle = item.querySelector('title').textContent;
-      const postLink = item.querySelector('link').textContent;
-      const postDescription = item.querySelector('description').textContent;
-      return {
-        postTitle,
-        postLink,
-        postDescription,
-      };
-    })
-    .reverse();
+  items.forEach((item) => {
+    const postTitle = item.querySelector('title').textContent;
+    const postLink = item.querySelector('link').textContent;
+    const postDescription = item.querySelector('description').textContent;
+    const post = {
+      postTitle,
+      postDescription,
+      postLink,
+    };
+    feedPosts.unshift(post);
+  });
 
   return { feed, feedPosts };
 };

@@ -13,19 +13,21 @@ const view = (state) => {
       case 'form':
         renderForm(state);
         break;
-      case 'feeds':
       case 'newFeed':
         renderFeeds(state);
         break;
-      case 'posts':
       case 'newPosts':
         renderPosts(state);
         break;
       case 'readed':
         renderReaded(state);
         break;
+      case 'allFeeds':
+      case 'allPosts':
+        break;
       default:
-        throw new Error('unknown path:', path);
+        console.log('unknown path:', path);
+        // throw new Error('unknown path:', path);
     }
   });
 

@@ -25,9 +25,9 @@ const updateFeed = (url, watched, updateTimeout) => {
   getFeed(url)
     .then((response) => {
       const { feedPosts } = parse(response.data);
-      const newPosts = getNewPosts(watched.posts, feedPosts);
+      const newPosts = getNewPosts(watched.allPosts, feedPosts);
       if (newPosts.length) {
-        watched.posts = [...newPosts, ...watched.posts];
+        watched.allPosts = [...newPosts, ...watched.allPosts];
         watched.newPosts = [...newPosts];
       }
     })
@@ -40,9 +40,14 @@ const updateFeed = (url, watched, updateTimeout) => {
     });
 };
 
-export const formHandler = (e, watched, updateTimeout) => {
+export const submitHandler = (e, watched, updateTimeout) => {
   e.preventDefault();
-  const url = e.target.value;
+  // console.log(e.target.elements);
+
+  const formData = new FormData(e.target);
+  const url = formData.get('url');
+
+  console.log(url);
 
   const errorInput = validInput(url);
   if (errorInput) {
@@ -50,7 +55,7 @@ export const formHandler = (e, watched, updateTimeout) => {
     return;
   }
 
-  const errorUrl = validUrl(url, watched.feeds);
+  const errorUrl = validUrl(url, watched.allFeeds);
   if (errorUrl) {
     watched.form = { status: 'error', error: errorUrl };
     return;
@@ -60,6 +65,9 @@ export const formHandler = (e, watched, updateTimeout) => {
 
   getFeed(url)
     .then((response) => {
+      // console.log('response', response);
+      // console.log('response.data', response.data);
+
       const errorRss = validResponse(response.data);
       if (errorRss) {
         watched.form = { status: 'error', error: errorRss };
@@ -69,15 +77,15 @@ export const formHandler = (e, watched, updateTimeout) => {
       watched.form = { status: 'loaded', error: '' };
 
       const feedData = parse(response.data);
-
+      // console.log(feedData);
       const feed = { ...feedData.feed, feedId: uniqueId() };
-      const feedPosts = feedData.posts.map((post) => ({ ...post, postId: uniqueId() }));
+      const feedPosts = feedData.feedPosts.map((post) => ({ ...post, postId: uniqueId() }));
 
-      watched.allFeeds = [feed, ...watched.feeds];
       watched.newFeed = feed;
+      watched.allFeeds = [feed, ...watched.allFeeds];
 
-      watched.allPosts = [...feedPosts, ...watched.posts];
       watched.newPosts = feedPosts;
+      watched.allPosts = [...feedPosts, ...watched.allPosts];
 
       setTimeout(() => updateFeed(url, watched, updateTimeout), updateTimeout);
     })
@@ -92,8 +100,9 @@ const makeModal = (id, posts) => {
   const modalTitle = modal.querySelector('.modal-title');
   const modalBody = modal.querySelector('.modal-body');
   const fullArticle = modal.querySelector('.full-article');
-
-  const post = posts.find(({ postID }) => postID === id);
+  // console.log('makeModal posts:', posts);
+  const post = posts.find(({ postId }) => postId === id);
+  // console.log('makeModal post', post);
   const { postTitle, postDescription, postLink } = post;
 
   modalTitle.textContent = postTitle;
@@ -103,9 +112,11 @@ const makeModal = (id, posts) => {
 
 export const postsHandler = (e, watched) => {
   if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-    const id = parseInt(e.target.getAttribute('data-post-id'), 10);
+    // console.log(e.target.getAttribute('data-post-id'));
+    const id = e.target.getAttribute('data-post-id');
+    // console.log(id);
     watched.readed = id;
 
-    makeModal(id, watched.posts);
+    makeModal(id, watched.allPosts);
   }
 };

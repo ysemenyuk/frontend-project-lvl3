@@ -4,7 +4,10 @@ import axios from 'axios';
 
 export const getFeed = (url) => {
   const newUrl = encodeURIComponent(url);
+  console.log('getFeed', `https://hexlet-allorigins.herokuapp.com/get?url=${newUrl}&disableCache=true`);
   return axios.get(`https://hexlet-allorigins.herokuapp.com/get?url=${newUrl}&disableCache=true`);
+  // console.log('getFeed', url);
+  // return axios.get(url);
 };
 
 export const validInput = (value) => {
@@ -33,7 +36,8 @@ export const validUrl = (url, existsFeeds) => {
 };
 
 export const validResponse = (data) => {
-  if (!data.status.content_type.includes('rss')) {
+  // console.log(data);
+  if (!data.status.content_type || !data.status.content_type.includes('rss')) {
     return 'notRss';
   }
   return null;

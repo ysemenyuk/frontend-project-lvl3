@@ -1,60 +1,79 @@
 import fs from 'fs';
 import path from 'path';
-
+import axios from 'axios';
+import httpAdapter from 'axios/lib/adapters/http';
 import '@testing-library/jest-dom';
-import { screen } from '@testing-library/dom';
+import { screen, waitFor } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event';
 import nock from 'nock';
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 
 import run from '../src/app';
 
+const fsp = fs.promises;
+nock.disableNetConnect();
+axios.defaults.adapter = httpAdapter;
+
 const pathToIndex = path.join('__fixtures__', 'index.html');
-// const pathToResponse = path.join('__fixtures__', 'response.json');
+const pathToResponse = path.join('__fixtures__', 'response.json');
+// const response = await fsp.readFile(pathToResponse, 'utf-8');
 
-const elements = {};
-// let response;
+let submit;
+let input;
+let feedback;
 
-beforeAll(() => {
-  nock.disableNetConnect();
-});
-
-beforeEach(() => {
-  document.body.innerHTML = fs.readFileSync(pathToIndex, 'utf-8');
-  // response = fs.readFileSync(pathToResponse, 'utf-8');
-
-  elements.submit = screen.getByRole('button');
-  elements.input = screen.getByRole('textbox');
-  elements.feedback = screen.getByRole('feedback');
+beforeEach(async () => {
+  document.body.innerHTML = await fsp.readFile(pathToIndex, 'utf-8');
+  submit = screen.getByRole('button');
+  input = screen.getByRole('textbox');
+  feedback = screen.getByRole('feedback');
 
   run();
 });
 
-test('test1', () => {
-  const url = 'http://localhost/feed';
-  const scope = nock('http://localhost')
+test('test1 validate input', () => {
+  userEvent.type(input, '12345');
+  userEvent.click(submit);
+
+  expect(feedback).toHaveTextContent('Must be valid url');
+});
+
+test('test2 network error', async () => {
+  const url = 'http://test.ru/feed';
+
+  nock('http://test.ru')
     .get('/feed')
-    .reply(400);
+    .reply(404, '');
 
-  userEvent.type(elements.input, url);
-  userEvent.click(elements.submit);
-  expect(elements.feedback).toHaveTextContent('Network Error');
-  expect(screen.getByText('Network Error')).toBeInTheDocument();
+  userEvent.type(input, url);
+  userEvent.click(submit);
 
-  scope.done();
+  expect(feedback).toHaveTextContent('Loading...');
+
+  await waitFor(() => {
+    expect(feedback).toHaveTextContent('Network Error');
+  });
 });
 
-test('validate', () => {
-  userEvent.type(elements.input, '123');
-  userEvent.click(elements.submit);
-  expect(elements.feedback).toHaveTextContent('Must be valid url');
-  expect(screen.getByText('Must be valid url')).toBeInTheDocument();
-});
+test('test3', async () => {
+  const url = 'http://test.ru/feed';
+  const response = await fsp.readFile(pathToResponse, 'utf-8');
 
-test('test2', () => {
-  const url = 'http://localhost/feed';
+  nock('http://hexlet-allorigins.herokuapp.com')
+    .get('/get?url=http%3A%2F%2Ftest.ru%2Ffeed&disableCache=true')
+    .reply(200, response);
 
-  userEvent.type(elements.input, url);
-  expect(elements.submit).not.toBeDisabled();
-  userEvent.click(elements.submit);
-  expect(elements.submit).toBeDisabled();
+  // nock('http://test.ru')
+  //   .get('/feed')
+  //   .reply(200, response);
+
+  userEvent.type(input, url);
+  userEvent.click(submit);
+
+  expect(feedback).toHaveTextContent('Loading...');
+
+  await waitFor(() => {
+    expect(feedback).toHaveTextContent('Rss has been loaded');
+  });
 });

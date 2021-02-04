@@ -2,7 +2,7 @@ import i18n from 'i18next';
 import resources from './locales/index.js';
 
 import view from './modules/view.js';
-import { formHandler, postsHandler } from './modules/handlers.js';
+import { submitHandler, postsHandler } from './modules/handlers.js';
 
 const app = () => {
   const defaultLanguage = 'en';
@@ -10,7 +10,7 @@ const app = () => {
 
   i18n.init({
     lng: defaultLanguage,
-    debug: true,
+    debug: false,
     resources,
   });
 
@@ -19,9 +19,9 @@ const app = () => {
       status: 'init',
       error: '',
     },
-    feeds: [],
+    allFeeds: [],
     newFeed: '',
-    posts: [],
+    allPosts: [],
     newPosts: [],
   };
 
@@ -30,7 +30,7 @@ const app = () => {
   const form = document.querySelector('form');
   const postsContainer = document.querySelector('.posts');
 
-  form.addEventListener('submit', (e) => formHandler(e, watched, updateTimeout));
+  form.addEventListener('submit', (e) => submitHandler(e, watched, updateTimeout));
   postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
 };
 

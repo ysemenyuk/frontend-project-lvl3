@@ -41,10 +41,10 @@ export const renderForm = (state) => {
 };
 
 const createFeedEl = (feedItem) => {
-  const { feedID, feedTitle, feedDescription } = feedItem;
+  const { feedId, feedTitle, feedDescription } = feedItem;
   const feed = document.createElement('li');
   feed.classList.add('list-group-item');
-  feed.setAttribute('data-feed-id', feedID);
+  feed.setAttribute('data-feed-id', feedId);
   feed.innerHTML = `<h4>${feedTitle}</h4><p>${feedDescription}</p>`;
   return feed;
 };
@@ -67,28 +67,29 @@ export const renderFeeds = (state) => {
 };
 
 const createPostEl = (feedPost) => {
+  // console.log(feedPost);
   const {
-    feedID,
-    postID,
+    feedId,
+    postId,
     postLink,
     postTitle,
   } = feedPost;
 
   const post = document.createElement('li');
   post.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
-  post.setAttribute('data-feed-id', feedID);
+  post.setAttribute('data-feed-id', feedId);
 
   const title = document.createElement('a');
   title.classList.add('fw-bold');
   title.setAttribute('target', '_blank');
-  title.setAttribute('data-post-id', postID);
+  title.setAttribute('data-post-id', postId);
   title.href = postLink;
   title.textContent = postTitle;
   post.append(title);
 
   const button = document.createElement('button');
   button.classList.add('btn', 'btn-primary', 'btn-sm');
-  button.setAttribute('data-post-id', postID);
+  button.setAttribute('data-post-id', postId);
   button.setAttribute('type', 'button');
   button.setAttribute('data-bs-toggle', 'modal');
   button.setAttribute('data-bs-target', '#modal');
@@ -117,7 +118,10 @@ export const renderPosts = (state) => {
 
 export const renderReaded = (state) => {
   const postsContainer = document.querySelector('.posts');
+  console.log(state.readed);
   const postTitle = postsContainer.querySelector(`[data-post-id="${state.readed}"]`);
+
+  console.log(postTitle);
   postTitle.classList.remove('fw-bold');
   postTitle.classList.add('fw-normal');
 };

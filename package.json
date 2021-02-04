@@ -26,9 +26,11 @@
     "@popperjs/core": "^2.6.0",
     "axios": "^0.21.1",
     "bootstrap": "^5.0.0-beta1",
+    "core-js": "^3.8.3",
     "i18next": "^19.8.5",
     "lodash": "^4.17.20",
     "on-change": "^2.2.3",
+    "regenerator-runtime": "^0.13.7",
     "yup": "^0.32.8"
   },
   "devDependencies": {
