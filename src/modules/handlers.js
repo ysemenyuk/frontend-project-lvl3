@@ -31,8 +31,8 @@ const updateFeed = (url, watched, updateTimeout) => {
         watched.newPosts = [...newPosts];
       }
     })
-    .catch((err) => {
-      console.log('catch update:', err.message);
+    .catch(() => {
+      // console.log('catch update:', err.message);
       // watched.form = { status: 'error', error: 'updateError' };
       // throw new Error(err.message);
     })
@@ -86,8 +86,8 @@ export const submitHandler = (e, watched, updateTimeout) => {
 
       setTimeout(() => updateFeed(proxyUrl, watched, updateTimeout), updateTimeout);
     })
-    .catch((err) => {
-      console.log('catch submit:', err.message);
+    .catch(() => {
+      // console.log('catch submit:', err.message);
       watched.form = { status: 'error', error: 'networkErr' };
       // throw new Error(err.message);
     });

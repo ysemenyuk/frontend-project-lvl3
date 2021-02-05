@@ -19,25 +19,26 @@ const pathToIndex = path.join('__fixtures__', 'index.html');
 const pathToRssResp = path.join('__fixtures__', 'rssResponse.json');
 const pathToNotRssResp = path.join('__fixtures__', 'notRssResponse.json');
 
-let input;
-let submit;
-let feedback;
+const elements = {};
+// let input;
+// let submit;
+// let feedback;
 
 beforeEach(async () => {
   document.body.innerHTML = await fsp.readFile(pathToIndex, 'utf-8');
 
-  input = screen.getByRole('textbox');
-  submit = screen.getByRole('button');
-  feedback = screen.getByRole('feedback');
+  elements.input = screen.getByRole('textbox');
+  elements.submit = screen.getByRole('button');
+  elements.feedback = screen.getByRole('feedback');
 
   run();
 });
 
 test('test1 valid input', () => {
-  userEvent.type(input, 'notUrl');
-  userEvent.click(submit);
+  userEvent.type(elements.input, 'notUrl');
+  userEvent.click(elements.submit);
 
-  expect(feedback).toHaveTextContent(/Must be valid url/i);
+  expect(elements.feedback).toHaveTextContent(/Must be valid url/i);
 });
 
 test('test2 network error', async () => {
@@ -48,11 +49,11 @@ test('test2 network error', async () => {
     .query({ url, disableCache: true })
     .replyWithError('no inet');
 
-  userEvent.type(input, url);
-  userEvent.click(submit);
+  userEvent.type(elements.input, url);
+  userEvent.click(elements.submit);
 
   await waitFor(() => {
-    expect(feedback).toHaveTextContent(/Network Error/i);
+    expect(elements.feedback).toHaveTextContent(/Network Error/i);
   });
 
   scope.done();
@@ -67,11 +68,11 @@ test('test4 not rss', async () => {
     .query({ url, disableCache: true })
     .reply(200, notRssResp);
 
-  userEvent.type(input, url);
-  userEvent.click(submit);
+  userEvent.type(elements.input, url);
+  userEvent.click(elements.submit);
 
   await waitFor(() => {
-    expect(feedback).toHaveTextContent(/This source doesn't contain valid rss/i);
+    expect(elements.feedback).toHaveTextContent(/This source doesn't contain valid rss/i);
   });
 
   scope.done();
@@ -87,30 +88,30 @@ test('test5 add feed and post and check exist url', async () => {
     .query({ url, disableCache: true })
     .reply(200, rssResp);
 
-  userEvent.type(input, url);
-  expect(submit).not.toBeDisabled();
+  userEvent.type(elements.input, url);
+  expect(elements.submit).toBeEnabled();
 
-  userEvent.click(submit);
-  expect(submit).toBeDisabled();
+  userEvent.click(elements.submit);
+  expect(elements.submit).toBeDisabled();
 
-  expect(feedback).toHaveTextContent(/Loading.../i);
+  expect(elements.feedback).toHaveTextContent(/Loading.../i);
 
   await waitFor(() => {
-    expect(feedback).toHaveTextContent(/Rss has been loaded/i);
+    expect(elements.feedback).toHaveTextContent(/Rss has been loaded/i);
   });
 
   await waitFor(() => {
-    expect(submit).not.toBeDisabled();
+    expect(elements.submit).toBeEnabled();
   });
 
   expect(await screen.findByText(/Lorem ipsum feed for an interval/i)).toBeInTheDocument();
   expect(await screen.findByText(/Lorem ipsum 2021-02-03T21:08:00Z/i)).toBeInTheDocument();
 
-  userEvent.type(input, url);
-  userEvent.click(submit);
+  userEvent.type(elements.input, url);
+  userEvent.click(elements.submit);
 
   await waitFor(() => {
-    expect(feedback).toHaveTextContent(/Rss already exists/i);
+    expect(elements.feedback).toHaveTextContent(/Rss already exists/i);
   });
 
   scope.done();

@@ -26,7 +26,7 @@ const view = (state) => {
       case 'allPosts':
         break;
       default:
-        console.log('unknown path:', path);
+        // console.log('unknown path:', path);
         // throw new Error('unknown path:', path);
     }
   });

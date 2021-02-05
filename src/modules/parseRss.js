@@ -1,10 +1,7 @@
 const parse = (data) => {
   const domparser = new DOMParser();
   const doc = domparser.parseFromString(data.contents, 'application/xml');
-  // console.log('doc:', doc);
-
   const rss = doc.querySelector('rss');
-  // console.log('rss', rss);
 
   if (!rss) {
     return null;
