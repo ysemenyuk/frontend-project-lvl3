@@ -32,8 +32,8 @@ const updateFeed = (url, watched, updateTimeout) => {
         watched.newPosts = [...newPosts];
       }
     })
-    .catch((err) => {
-      console.log('catch update:', err.message);
+    .catch(() => {
+      // console.log('catch update:', err.message);
       // watched.form = { status: 'error', error: 'updateError' };
       // throw new Error(err.message);
     })
@@ -69,11 +69,6 @@ export const submitHandler = (e, watched, updateTimeout) => {
     .then((response) => {
       // console.log('response', response);
 
-      // const notRss = validResponse(response.data);
-      // if (notRss) {
-      //   watched.form = { status: 'error', error: notRss };
-      //   return;
-      // }
       const feedData = parseRss(response.data);
       watched.form = { status: 'loaded', error: '' };
 
@@ -90,8 +85,8 @@ export const submitHandler = (e, watched, updateTimeout) => {
       setTimeout(() => updateFeed(proxyUrl, watched, updateTimeout), updateTimeout);
     })
     .catch((err) => {
-      console.log('catch submit:', err.message);
-      watched.form = { status: 'error', error: 'networkError' };
+      // console.log('catch submit:', err.message);
+      watched.form = { status: 'error', error: err.message };
       // throw new Error(err.message);
     });
 };

@@ -16,17 +16,24 @@ nock.disableNetConnect();
 axios.defaults.adapter = httpAdapter;
 
 const pathToIndex = path.join('__fixtures__', 'index.html');
-const pathToResponse = path.join('__fixtures__', 'response.json');
+const pathToRssResp = path.join('__fixtures__', 'rssResponse.json');
+const pathToNotRssResp = path.join('__fixtures__', 'notRssResponse.json');
 
-let submit;
 let input;
+let submit;
 let feedback;
+// let feeds;
+// let posts;
 
 beforeEach(async () => {
   document.body.innerHTML = await fsp.readFile(pathToIndex, 'utf-8');
-  submit = screen.getByRole('button');
+
   input = screen.getByRole('textbox');
+  submit = screen.getByRole('button');
   feedback = screen.getByRole('feedback');
+  // feeds = screen.getByRole('feeds');
+  // posts = screen.getByRole('posts');
+
   run();
 });
 
@@ -40,32 +47,55 @@ test('test1 valid input', () => {
 test('test2 network error', async () => {
   const url = 'http://test.ru/feed';
 
-  nock('https://hexlet-allorigins.herokuapp.com')
+  const scope = nock('https://hexlet-allorigins.herokuapp.com')
     .get('/get')
     .query({ url, disableCache: true })
-    .reply(404, '');
+    .replyWithError('Network Error');
 
   userEvent.type(input, url);
   userEvent.click(submit);
-
-  expect(feedback).toHaveTextContent(/Loading.../i);
 
   await waitFor(() => {
     expect(feedback).toHaveTextContent(/Network Error/i);
   });
+
+  scope.done();
 });
 
-test('test3', async () => {
-  const url = 'http://test.ru/feed';
-  const response = await fsp.readFile(pathToResponse, 'utf-8');
+test('test4 not rss', async () => {
+  const url = 'http://test.ru';
+  const notRssResp = await fsp.readFile(pathToNotRssResp, 'utf-8');
 
-  nock('https://hexlet-allorigins.herokuapp.com')
+  const scope = nock('https://hexlet-allorigins.herokuapp.com')
     .get('/get')
     .query({ url, disableCache: true })
-    .reply(200, response);
+    .reply(200, notRssResp);
 
   userEvent.type(input, url);
   userEvent.click(submit);
+
+  await waitFor(() => {
+    expect(feedback).toHaveTextContent(/This source doesn't contain valid rss/i);
+  });
+
+  scope.done();
+});
+
+test('test5 add feed and post and check exist url', async () => {
+  const url = 'http://test.ru/feed';
+  const rssResp = await fsp.readFile(pathToRssResp, 'utf-8');
+
+  const scope = nock('https://hexlet-allorigins.herokuapp.com')
+    .persist()
+    .get('/get')
+    .query({ url, disableCache: true })
+    .reply(200, rssResp);
+
+  userEvent.type(input, url);
+  expect(submit).not.toBeDisabled();
+
+  userEvent.click(submit);
+  expect(submit).toBeDisabled();
 
   expect(feedback).toHaveTextContent(/Loading.../i);
 
@@ -73,6 +103,20 @@ test('test3', async () => {
     expect(feedback).toHaveTextContent(/Rss has been loaded/i);
   });
 
+  await waitFor(() => {
+    expect(submit).not.toBeDisabled();
+  });
+
   expect(await screen.findByText(/Lorem ipsum feed for an interval/i)).toBeInTheDocument();
   expect(await screen.findByText(/Lorem ipsum 2021-02-03T21:08:00Z/i)).toBeInTheDocument();
+
+  userEvent.type(input, url);
+  userEvent.click(submit);
+
+  await waitFor(() => {
+    expect(feedback).toHaveTextContent(/Rss already exists/i);
+  });
+
+  scope.done();
+  scope.persist(false);
 });

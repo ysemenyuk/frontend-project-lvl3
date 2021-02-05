@@ -11,7 +11,7 @@ export default {
       existUrl: 'Rss already exists',
       notRss: "This source doesn't contain valid rss",
       notValidUrl: 'Must be valid url',
-      networkError: 'Network Error',
+      nerworkErr: 'Network Error',
       updateError: 'Update Error',
     },
   },

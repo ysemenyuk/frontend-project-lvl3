@@ -19,21 +19,25 @@ export const renderForm = (state) => {
       feedback.classList.remove('text-danger');
       input.classList.remove('is-invalid');
       button.disabled = true;
-      input.disabled = true;
+      input.readonly = true;
       break;
     case 'loaded':
       feedback.textContent = i18n.t(`feedback.${form.status}`);
       input.value = '';
       button.disabled = false;
-      input.disabled = false;
+      input.readonly = false;
       break;
     case 'error':
-      feedback.textContent = i18n.t(`feedback.${form.error}`);
+      if (i18n.exists(`feedback.${form.error}`)) {
+        feedback.textContent = i18n.t(`feedback.${form.error}`);
+      } else {
+        feedback.textContent = form.error;
+      }
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
       input.classList.add('is-invalid');
       button.disabled = false;
-      input.disabled = false;
+      input.readonly = false;
       break;
     default:
       throw new Error('unknown form status:', form.status);
@@ -67,7 +71,6 @@ export const renderFeeds = (state) => {
 };
 
 const createPostEl = (feedPost) => {
-  // console.log(feedPost);
   const {
     feedId,
     postId,
