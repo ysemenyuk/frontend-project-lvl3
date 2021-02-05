@@ -50,6 +50,21 @@ const createFeedEl = (feedItem) => {
   feed.classList.add('list-group-item');
   feed.setAttribute('data-feed-id', feedId);
   feed.innerHTML = `<h4>${feedTitle}</h4><p>${feedDescription}</p>`;
+
+  const updateButton = document.createElement('button');
+  updateButton.classList.add('btn', 'btn-primary', 'btn-sm');
+  updateButton.setAttribute('data-feed-id', feedId);
+  updateButton.setAttribute('type', 'button');
+  updateButton.textContent = 'Update feed';
+  feed.append(updateButton);
+
+  const deleteButton = document.createElement('button');
+  deleteButton.classList.add('btn', 'btn-primary', 'btn-sm');
+  deleteButton.setAttribute('data-feed-id', feedId);
+  deleteButton.setAttribute('type', 'button');
+  deleteButton.textContent = 'Delete feed';
+  feed.append(deleteButton);
+
   return feed;
 };
 
@@ -90,14 +105,14 @@ const createPostEl = (feedPost) => {
   title.textContent = postTitle;
   post.append(title);
 
-  const button = document.createElement('button');
-  button.classList.add('btn', 'btn-primary', 'btn-sm');
-  button.setAttribute('data-post-id', postId);
-  button.setAttribute('type', 'button');
-  button.setAttribute('data-bs-toggle', 'modal');
-  button.setAttribute('data-bs-target', '#modal');
-  button.textContent = 'Preview';
-  post.append(button);
+  const previewButton = document.createElement('button');
+  previewButton.classList.add('btn', 'btn-primary', 'btn-sm');
+  previewButton.setAttribute('data-post-id', postId);
+  previewButton.setAttribute('type', 'button');
+  previewButton.setAttribute('data-bs-toggle', 'modal');
+  previewButton.setAttribute('data-bs-target', '#modal');
+  previewButton.textContent = 'Preview';
+  post.append(previewButton);
 
   return post;
 };
@@ -130,4 +145,19 @@ export const renderReaded = (state) => {
 
   postTitle.classList.remove('font-weight-bold');
   postTitle.classList.add('font-weight-normal');
+};
+
+export const makeModal = (state) => {
+  const modal = document.querySelector('#modal');
+  const modalTitle = modal.querySelector('.modal-title');
+  const modalBody = modal.querySelector('.modal-body');
+  const fullArticle = modal.querySelector('.full-article');
+
+  const id = state.readed;
+  const post = state.allPosts.find(({ postId }) => postId === id);
+  const { postTitle, postDescription, postLink } = post;
+
+  modalTitle.textContent = postTitle;
+  modalBody.textContent = postDescription;
+  fullArticle.href = postLink;
 };

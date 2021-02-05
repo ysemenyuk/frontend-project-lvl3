@@ -4,6 +4,7 @@ import {
   renderFeeds,
   renderPosts,
   renderReaded,
+  makeModal,
 } from './renders.js';
 
 const view = (state) => {
@@ -21,6 +22,7 @@ const view = (state) => {
         break;
       case 'readed':
         renderReaded(state);
+        makeModal(state);
         break;
       case 'allFeeds':
       case 'allPosts':

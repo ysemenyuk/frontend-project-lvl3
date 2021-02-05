@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
-import uniqueId from 'lodash/uniqueId.js';
+import { uniqueId, noop, differenceBy } from 'lodash';
 import parseRss from './parseRss.js';
 import {
   addProxy,
@@ -8,23 +8,30 @@ import {
   validUrl,
 } from './utils.js';
 
+// const getNewPosts = (existsPost, feedPosts) => {
+//   const [{ feedTitle }] = feedPosts;
+//   const existsTitles = existsPost
+//     .filter((post) => feedTitle === post.feedTitle)
+//     .map((post) => post.postTitle);
+
+//   const newPosts = feedPosts
+//     .filter((post) => !existsTitles.includes(post.postTitle))
+//     .map((post) => ({ ...post, postId: uniqueId() }));
+
+//   return newPosts;
+// };
+
 const getNewPosts = (existsPost, feedPosts) => {
-  const [{ feedTitle }] = feedPosts;
-  const existsTitles = existsPost
-    .filter((post) => feedTitle === post.feedTitle)
-    .map((post) => post.postTitle);
-
-  const newPosts = feedPosts
-    .filter((post) => !existsTitles.includes(post.postTitle))
-    .map((post) => ({ ...post, postId: uniqueId() }));
-
-  return newPosts;
+  const newPosts = differenceBy(feedPosts, existsPost, 'postTitle');
+  // console.log('newPosts', newPosts);
+  return newPosts.map((post) => ({ ...post, postId: uniqueId() }));
 };
 
-const updateFeed = (url, watched, updateTimeout) => {
-  axios.get(url)
+const updateFeed = (url, watched) => {
+  const proxyUrl = addProxy(url);
+  return axios.get(proxyUrl)
     .then((response) => {
-      const { feedPosts } = parseRss(response.data);
+      const { feedPosts } = parseRss(response.data.contents);
       const newPosts = getNewPosts(watched.allPosts, feedPosts);
       if (newPosts.length) {
         watched.allPosts = [...newPosts, ...watched.allPosts];
@@ -32,18 +39,19 @@ const updateFeed = (url, watched, updateTimeout) => {
       }
     })
     .catch(() => {
-      // console.log('catch update:', err.message);
-      // watched.form = { status: 'error', error: 'updateError' };
-      // throw new Error(err.message);
-    })
-    .finally(() => {
-      setTimeout(() => updateFeed(url, watched, updateTimeout), updateTimeout);
+      noop();
+    });
+};
+
+const autoUpdateFeed = (url, watched, updateTimeout) => {
+  updateFeed(url, watched)
+    .then(() => {
+      setTimeout(() => autoUpdateFeed(url, watched, updateTimeout), updateTimeout);
     });
 };
 
 export const submitHandler = (e, watched, updateTimeout) => {
   e.preventDefault();
-  // console.log(e.target.elements);
 
   const formData = new FormData(e.target);
   const url = formData.get('url');
@@ -67,7 +75,7 @@ export const submitHandler = (e, watched, updateTimeout) => {
   axios.get(proxyUrl)
     .then((response) => {
       // console.log('response', response);
-      const feedData = parseRss(response.data);
+      const feedData = parseRss(response.data.contents);
       if (!feedData) {
         watched.form = { status: 'error', error: 'notRss' };
         return;
@@ -84,34 +92,27 @@ export const submitHandler = (e, watched, updateTimeout) => {
       watched.newPosts = feedPosts;
       watched.allPosts = [...feedPosts, ...watched.allPosts];
 
-      setTimeout(() => updateFeed(proxyUrl, watched, updateTimeout), updateTimeout);
+      setTimeout(() => autoUpdateFeed(url, watched, updateTimeout), updateTimeout);
     })
     .catch(() => {
       // console.log('catch submit:', err.message);
       watched.form = { status: 'error', error: 'networkErr' };
-      // throw new Error(err.message);
     });
 };
 
-const makeModal = (id, posts) => {
-  const modal = document.querySelector('#modal');
-  const modalTitle = modal.querySelector('.modal-title');
-  const modalBody = modal.querySelector('.modal-body');
-  const fullArticle = modal.querySelector('.full-article');
-  const post = posts.find(({ postId }) => postId === id);
-  const { postTitle, postDescription, postLink } = post;
-
-  modalTitle.textContent = postTitle;
-  modalBody.textContent = postDescription;
-  fullArticle.href = postLink;
+export const feedsHandler = (e, watched) => {
+  // console.dir(e.target);
+  if (e.target.tagName === 'BUTTON') {
+    const id = e.target.getAttribute('data-feed-id');
+    const feed = watched.allFeeds.find(({ feedId }) => feedId === id);
+    const { feedUrl } = feed;
+    updateFeed(feedUrl, watched);
+  }
 };
 
 export const postsHandler = (e, watched) => {
+  // console.dir(e.target);
   if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-    // console.log(e.target.getAttribute('data-post-id'));
-    const id = e.target.getAttribute('data-post-id');
-    // console.log(id);
-    watched.readed = id;
-    makeModal(id, watched.allPosts);
+    watched.readed = e.target.getAttribute('data-post-id');
   }
 };

@@ -1,6 +1,6 @@
-const parse = (data) => {
+const parse = (contents) => {
   const domparser = new DOMParser();
-  const doc = domparser.parseFromString(data.contents, 'application/xml');
+  const doc = domparser.parseFromString(contents, 'application/xml');
   const rss = doc.querySelector('rss');
 
   if (!rss) {
@@ -8,27 +8,20 @@ const parse = (data) => {
   }
 
   const channel = doc.querySelector('channel');
-  const feedTitle = channel.querySelector('title').textContent;
-  const feedDescription = channel.querySelector('description').textContent;
-  const feedLink = channel.querySelector('link').textContent;
+  const items = channel.querySelectorAll('item');
 
   const feed = {
-    feedTitle,
-    feedDescription,
-    feedLink,
+    feedTitle: channel.querySelector('title').textContent,
+    feedDescription: channel.querySelector('description').textContent,
   };
 
   const feedPosts = [];
 
-  const items = channel.querySelectorAll('item');
   items.forEach((item) => {
-    const postTitle = item.querySelector('title').textContent;
-    const postLink = item.querySelector('link').textContent;
-    const postDescription = item.querySelector('description').textContent;
     const post = {
-      postTitle,
-      postDescription,
-      postLink,
+      postTitle: item.querySelector('title').textContent,
+      postDescription: item.querySelector('description').textContent,
+      postLink: item.querySelector('link').textContent,
     };
     feedPosts.unshift(post);
   });
