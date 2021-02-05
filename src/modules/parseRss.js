@@ -7,7 +7,7 @@ const parse = (data) => {
   // console.log('rss', rss);
 
   if (!rss) {
-    throw new Error('notRss');
+    return null;
   }
 
   const channel = doc.querySelector('channel');

@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 import { setLocale } from 'yup';
-// import axios from 'axios';
 
 export const addProxy = (url) => {
   // const myURL = new URL('https://hexlet-allorigins.herokuapp.com');
@@ -33,14 +32,6 @@ export const validUrl = (url, existsFeeds) => {
   const existsUrls = existsFeeds.map((feed) => feed.feedUrl);
   if ((existsUrls).includes(url)) {
     return 'existUrl';
-  }
-  return null;
-};
-
-export const validResponse = (data) => {
-  // console.log(data);
-  if (!data.status.content_type || !data.status.content_type.includes('rss')) {
-    return 'notRss';
   }
   return null;
 };

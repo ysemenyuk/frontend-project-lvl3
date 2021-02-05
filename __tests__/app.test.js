@@ -22,8 +22,6 @@ const pathToNotRssResp = path.join('__fixtures__', 'notRssResponse.json');
 let input;
 let submit;
 let feedback;
-// let feeds;
-// let posts;
 
 beforeEach(async () => {
   document.body.innerHTML = await fsp.readFile(pathToIndex, 'utf-8');
@@ -31,8 +29,6 @@ beforeEach(async () => {
   input = screen.getByRole('textbox');
   submit = screen.getByRole('button');
   feedback = screen.getByRole('feedback');
-  // feeds = screen.getByRole('feeds');
-  // posts = screen.getByRole('posts');
 
   run();
 });
@@ -50,7 +46,7 @@ test('test2 network error', async () => {
   const scope = nock('https://hexlet-allorigins.herokuapp.com')
     .get('/get')
     .query({ url, disableCache: true })
-    .replyWithError('Network Error');
+    .replyWithError('no inet');
 
   userEvent.type(input, url);
   userEvent.click(submit);

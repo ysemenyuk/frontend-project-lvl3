@@ -6,7 +6,6 @@ import {
   addProxy,
   validInput,
   validUrl,
-  // validResponse,
 } from './utils.js';
 
 const getNewPosts = (existsPost, feedPosts) => {
@@ -32,8 +31,8 @@ const updateFeed = (url, watched, updateTimeout) => {
         watched.newPosts = [...newPosts];
       }
     })
-    .catch(() => {
-      // console.log('catch update:', err.message);
+    .catch((err) => {
+      console.log('catch update:', err.message);
       // watched.form = { status: 'error', error: 'updateError' };
       // throw new Error(err.message);
     })
@@ -68,11 +67,14 @@ export const submitHandler = (e, watched, updateTimeout) => {
   axios.get(proxyUrl)
     .then((response) => {
       // console.log('response', response);
-
       const feedData = parseRss(response.data);
+      if (!feedData) {
+        watched.form = { status: 'error', error: 'notRss' };
+        return;
+      }
+
       watched.form = { status: 'loaded', error: '' };
 
-      // console.log(feedData);
       const feed = { ...feedData.feed, feedUrl: url, feedId: uniqueId() };
       const feedPosts = feedData.feedPosts.map((post) => ({ ...post, postId: uniqueId() }));
 
@@ -85,8 +87,8 @@ export const submitHandler = (e, watched, updateTimeout) => {
       setTimeout(() => updateFeed(proxyUrl, watched, updateTimeout), updateTimeout);
     })
     .catch((err) => {
-      // console.log('catch submit:', err.message);
-      watched.form = { status: 'error', error: err.message };
+      console.log('catch submit:', err.message);
+      watched.form = { status: 'error', error: 'networkErr' };
       // throw new Error(err.message);
     });
 };
@@ -96,9 +98,7 @@ const makeModal = (id, posts) => {
   const modalTitle = modal.querySelector('.modal-title');
   const modalBody = modal.querySelector('.modal-body');
   const fullArticle = modal.querySelector('.full-article');
-  // console.log('makeModal posts:', posts);
   const post = posts.find(({ postId }) => postId === id);
-  // console.log('makeModal post', post);
   const { postTitle, postDescription, postLink } = post;
 
   modalTitle.textContent = postTitle;

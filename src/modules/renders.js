@@ -18,14 +18,14 @@ export const renderForm = (state) => {
       feedback.classList.add('text-success');
       feedback.classList.remove('text-danger');
       input.classList.remove('is-invalid');
+      input.setAttribute('readonly', 'true');
       button.disabled = true;
-      input.readonly = true;
       break;
     case 'loaded':
       feedback.textContent = i18n.t(`feedback.${form.status}`);
       input.value = '';
       button.disabled = false;
-      input.readonly = false;
+      input.removeAttribute('readonly', 'true');
       break;
     case 'error':
       if (i18n.exists(`feedback.${form.error}`)) {
@@ -37,7 +37,7 @@ export const renderForm = (state) => {
       feedback.classList.add('text-danger');
       input.classList.add('is-invalid');
       button.disabled = false;
-      input.readonly = false;
+      input.removeAttribute('readonly', 'true');
       break;
     default:
       throw new Error('unknown form status:', form.status);
@@ -83,7 +83,7 @@ const createPostEl = (feedPost) => {
   post.setAttribute('data-feed-id', feedId);
 
   const title = document.createElement('a');
-  title.classList.add('fw-bold');
+  title.classList.add('fw-bold', 'font-weight-bold');
   title.setAttribute('target', '_blank');
   title.setAttribute('data-post-id', postId);
   title.href = postLink;
@@ -121,10 +121,13 @@ export const renderPosts = (state) => {
 
 export const renderReaded = (state) => {
   const postsContainer = document.querySelector('.posts');
-  console.log(state.readed);
+  // console.log(state.readed);
   const postTitle = postsContainer.querySelector(`[data-post-id="${state.readed}"]`);
 
-  console.log(postTitle);
+  // console.log(postTitle);
   postTitle.classList.remove('fw-bold');
   postTitle.classList.add('fw-normal');
+
+  postTitle.classList.remove('font-weight-bold');
+  postTitle.classList.add('font-weight-normal');
 };
