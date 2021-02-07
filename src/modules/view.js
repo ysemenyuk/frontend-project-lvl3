@@ -3,29 +3,24 @@ import {
   renderForm,
   renderFeeds,
   renderPosts,
-  renderReaded,
-  makeModal,
+  renderModal,
 } from './renders.js';
 
 const view = (state) => {
   const watchedState = onChange(state, (path) => {
-    // console.log('path:', { path });
+    // console.log('onChange path:', { path });
     switch (path) {
       case 'form':
         renderForm(state);
         break;
-      case 'newFeed':
+      case 'feeds':
         renderFeeds(state);
         break;
-      case 'newPosts':
+      case 'posts':
         renderPosts(state);
         break;
-      case 'readed':
-        renderReaded(state);
-        makeModal(state);
-        break;
-      case 'allFeeds':
-      case 'allPosts':
+      case 'modal':
+        renderModal(state);
         break;
       default:
         // console.log('unknown path:', path);

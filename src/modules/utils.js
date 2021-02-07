@@ -2,12 +2,11 @@ import * as yup from 'yup';
 import { setLocale } from 'yup';
 
 export const addProxy = (url) => {
-  // const myURL = new URL('https://hexlet-allorigins.herokuapp.com');
-  // myURL.pathname = '/get';
-  // myURL.searchParams.append('url', url);
-  // myURL.searchParams.append('disableCache', 'true');
+  // const proxyUrl = new URL('https://hexlet-allorigins.herokuapp.com');
+  // proxyUrl.pathname = '/get';
+  // proxyUrl.searchParams.append('url', url);
+  // proxyUrl.searchParams.append('disableCache', 'true');
   const proxyUrl = `https://hexlet-allorigins.herokuapp.com/get?url=${url}&disableCache=true`;
-  // console.log('addProxy', proxyUrl);
   return proxyUrl;
 };
 
@@ -29,7 +28,7 @@ export const validInput = (value) => {
 };
 
 export const validUrl = (url, existsFeeds) => {
-  const existsUrls = existsFeeds.map((feed) => feed.feedUrl);
+  const existsUrls = existsFeeds.map((feed) => feed.url);
   if ((existsUrls).includes(url)) {
     return 'existUrl';
   }

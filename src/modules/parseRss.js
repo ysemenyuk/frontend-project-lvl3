@@ -11,22 +11,22 @@ const parse = (contents) => {
   const items = channel.querySelectorAll('item');
 
   const feed = {
-    feedTitle: channel.querySelector('title').textContent,
-    feedDescription: channel.querySelector('description').textContent,
+    title: channel.querySelector('title').textContent,
+    description: channel.querySelector('description').textContent,
   };
 
-  const feedPosts = [];
+  const posts = [];
 
   items.forEach((item) => {
     const post = {
-      postTitle: item.querySelector('title').textContent,
-      postDescription: item.querySelector('description').textContent,
-      postLink: item.querySelector('link').textContent,
+      title: item.querySelector('title').textContent,
+      description: item.querySelector('description').textContent,
+      link: item.querySelector('link').textContent,
     };
-    feedPosts.unshift(post);
+    posts.unshift(post);
   });
 
-  return { feed, feedPosts };
+  return { feed, posts };
 };
 
 export default parse;

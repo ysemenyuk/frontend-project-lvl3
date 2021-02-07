@@ -1,6 +1,10 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
-import { uniqueId, noop, differenceBy } from 'lodash';
+
+import uniqueId from 'lodash/uniqueId';
+import noop from 'lodash/noop';
+import differenceBy from 'lodash/differenceBy';
+
 import parseRss from './parseRss.js';
 import {
   addProxy,
@@ -8,34 +12,15 @@ import {
   validUrl,
 } from './utils.js';
 
-// const getNewPosts = (existsPost, feedPosts) => {
-//   const [{ feedTitle }] = feedPosts;
-//   const existsTitles = existsPost
-//     .filter((post) => feedTitle === post.feedTitle)
-//     .map((post) => post.postTitle);
-
-//   const newPosts = feedPosts
-//     .filter((post) => !existsTitles.includes(post.postTitle))
-//     .map((post) => ({ ...post, postId: uniqueId() }));
-
-//   return newPosts;
-// };
-
-const getNewPosts = (existsPost, feedPosts) => {
-  const newPosts = differenceBy(feedPosts, existsPost, 'postTitle');
-  // console.log('newPosts', newPosts);
-  return newPosts.map((post) => ({ ...post, postId: uniqueId() }));
-};
-
-const updateFeed = (url, watched) => {
-  const proxyUrl = addProxy(url);
+const updateFeed = (feed, watched) => {
+  const proxyUrl = addProxy(feed.url);
   return axios.get(proxyUrl)
     .then((response) => {
-      const { feedPosts } = parseRss(response.data.contents);
-      const newPosts = getNewPosts(watched.allPosts, feedPosts);
-      if (newPosts.length) {
-        watched.allPosts = [...newPosts, ...watched.allPosts];
-        watched.newPosts = [...newPosts];
+      const { posts } = parseRss(response.data.contents);
+      const diffPosts = differenceBy(posts, watched.posts, 'title');
+      if (diffPosts.length) {
+        const newPosts = diffPosts.map((post) => ({ ...post, id: uniqueId(), feedId: feed.id }));
+        watched.posts = [...watched.posts, ...newPosts];
       }
     })
     .catch(() => {
@@ -43,10 +28,10 @@ const updateFeed = (url, watched) => {
     });
 };
 
-const autoUpdateFeed = (url, watched, updateTimeout) => {
-  updateFeed(url, watched)
+const autoUpdateFeed = (feed, watched, updateTimeout) => {
+  updateFeed(feed, watched)
     .then(() => {
-      setTimeout(() => autoUpdateFeed(url, watched, updateTimeout), updateTimeout);
+      setTimeout(() => autoUpdateFeed(feed, watched, updateTimeout), updateTimeout);
     });
 };
 
@@ -62,7 +47,7 @@ export const submitHandler = (e, watched, updateTimeout) => {
     return;
   }
 
-  const existUrl = validUrl(url, watched.allFeeds);
+  const existUrl = validUrl(url, watched.feeds);
   if (existUrl) {
     watched.form = { status: 'error', error: existUrl };
     return;
@@ -83,16 +68,15 @@ export const submitHandler = (e, watched, updateTimeout) => {
 
       watched.form = { status: 'loaded', error: '' };
 
-      const feed = { ...feedData.feed, feedUrl: url, feedId: uniqueId() };
-      const feedPosts = feedData.feedPosts.map((post) => ({ ...post, postId: uniqueId() }));
+      const feedId = uniqueId();
 
-      watched.newFeed = feed;
-      watched.allFeeds = [feed, ...watched.allFeeds];
+      const feed = { ...feedData.feed, url, id: feedId };
+      const posts = feedData.posts.map((post) => ({ ...post, id: uniqueId(), feedId }));
 
-      watched.newPosts = feedPosts;
-      watched.allPosts = [...feedPosts, ...watched.allPosts];
+      watched.feeds = [...watched.feeds, feed];
+      watched.posts = [...watched.posts, ...posts];
 
-      setTimeout(() => autoUpdateFeed(url, watched, updateTimeout), updateTimeout);
+      setTimeout(() => autoUpdateFeed(feed, watched, updateTimeout), updateTimeout);
     })
     .catch(() => {
       // console.log('catch submit:', err.message);
@@ -104,7 +88,7 @@ export const feedsHandler = (e, watched) => {
   // console.dir(e.target);
   if (e.target.tagName === 'BUTTON') {
     const id = e.target.getAttribute('data-feed-id');
-    const feed = watched.allFeeds.find(({ feedId }) => feedId === id);
+    const feed = watched.feeds.find(({ feedId }) => feedId === id);
     const { feedUrl } = feed;
     updateFeed(feedUrl, watched);
   }
@@ -113,6 +97,16 @@ export const feedsHandler = (e, watched) => {
 export const postsHandler = (e, watched) => {
   // console.dir(e.target);
   if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-    watched.readed = e.target.getAttribute('data-post-id');
+    const id = e.target.getAttribute('data-post-id');
+
+    watched.posts.forEach((post) => {
+      if (id === post.id) {
+        post.readed = true;
+      }
+    });
+
+    if (e.target.tagName === 'BUTTON') {
+      watched.modal = id;
+    }
   }
 };

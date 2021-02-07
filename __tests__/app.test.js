@@ -20,9 +20,6 @@ const pathToRssResp = path.join('__fixtures__', 'rssResponse.json');
 const pathToNotRssResp = path.join('__fixtures__', 'notRssResponse.json');
 
 const elements = {};
-// let input;
-// let submit;
-// let feedback;
 
 beforeEach(async () => {
   document.body.innerHTML = await fsp.readFile(pathToIndex, 'utf-8');
