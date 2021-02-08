@@ -4,7 +4,10 @@ const parse = (contents) => {
   const parseError = doc.querySelector('parsererror');
 
   if (parseError) {
-    return null;
+    const err = new Error('notRss');
+    err.isParsingError = true;
+    throw err;
+    // return null;
   }
 
   const channel = doc.querySelector('channel');

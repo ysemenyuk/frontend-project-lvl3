@@ -3,7 +3,7 @@ import onChange from 'on-change';
 import i18n from 'i18next';
 import { submitHandler, postsHandler, feedsHandler } from './handlers.js';
 
-export const renderForm = (state) => {
+const renderForm = (state) => {
   const { form } = state;
   const feedback = document.querySelector('.feedback');
   const button = document.querySelector('[type="submit"]');
@@ -57,7 +57,7 @@ const createFeedEl = (feed) => {
   return feedEl;
 };
 
-export const renderFeeds = (state) => {
+const renderFeeds = (state) => {
   const feedsContainer = document.querySelector('.feeds');
 
   if (state.feeds.length) {
@@ -115,7 +115,7 @@ const createPostEl = (post) => {
   return postEl;
 };
 
-export const renderPosts = (state) => {
+const renderPosts = (state) => {
   const postsContainer = document.querySelector('.posts');
 
   if (state.posts.length) {
@@ -133,7 +133,7 @@ export const renderPosts = (state) => {
   }
 };
 
-export const renderModal = (state) => {
+const renderModal = (state) => {
   const modal = document.querySelector('#modal');
   const modalTitle = modal.querySelector('.modal-title');
   const modalBody = modal.querySelector('.modal-body');
@@ -162,6 +162,10 @@ const init = (state) => {
     e.preventDefault();
     input.value = e.target.textContent;
   });
+
+  renderForm(state);
+  renderFeeds(state);
+  renderPosts(state);
 };
 
 const view = (state) => {

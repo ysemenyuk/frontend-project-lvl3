@@ -55,10 +55,6 @@ export const submitHandler = (e, state) => {
     .then((response) => {
       // console.log('response', response);
       const feedData = parseRss(response.data.contents);
-      if (!feedData) {
-        state.form = { status: 'error', error: 'notRss' };
-        return;
-      }
 
       state.form = { status: 'loaded', error: '' };
 
@@ -72,14 +68,18 @@ export const submitHandler = (e, state) => {
 
       setTimeout(() => autoUpdateFeed(feed, state), state.updateTimeout);
     })
-    .catch(() => {
-      // console.log('catch submit:', err.message);
-      state.form = { status: 'error', error: 'networkErr' };
+    .catch((err) => {
+      if (err.isAxiosError) {
+        state.form = { status: 'error', error: 'networkErr' };
+      } else if (err.isParsingError) {
+        state.form = { status: 'error', error: 'parsingErr' };
+      } else {
+        state.form = { status: 'error', error: err.message };
+      }
     });
 };
 
 export const feedsHandler = (e, state) => {
-  // console.log('feedsHandler', e.target);
   if (e.target.tagName === 'BUTTON') {
     const id = e.target.getAttribute('data-feed-id');
     const feed = state.feeds.find((i) => i.id === id);
@@ -88,7 +88,6 @@ export const feedsHandler = (e, state) => {
 };
 
 export const postsHandler = (e, state) => {
-  // console.log('postsHandler', e.target);
   if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
     const id = e.target.getAttribute('data-post-id');
 
@@ -104,8 +103,7 @@ export const postsHandler = (e, state) => {
   }
 };
 
-export const postButtonPreviewHandler = (e, state, post) => {
-  // console.log('postButtonPreviewHandler', e.target);
+export const postPreviewButtonHandler = (e, state, post) => {
   e.preventDefault();
   state.postForModal = post;
 };

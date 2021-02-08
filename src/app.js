@@ -18,7 +18,9 @@ const app = () => {
     },
     feeds: [],
     posts: [],
-    modal: { postId: '' },
+    modal: {
+      postId: '',
+    },
   };
 
   setLocale({
