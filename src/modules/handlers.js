@@ -6,107 +6,106 @@ import noop from 'lodash/noop';
 import differenceBy from 'lodash/differenceBy';
 
 import parseRss from './parseRss.js';
-import {
-  addProxy,
-  validInput,
-  validUrl,
-} from './utils.js';
+import { addProxyToUrl, validateInput, validateUrl } from './utils.js';
 
-const updateFeed = (feed, watched) => {
-  const proxyUrl = addProxy(feed.url);
+const updateFeed = (feed, state) => {
+  const proxyUrl = addProxyToUrl(feed.url);
   return axios.get(proxyUrl)
     .then((response) => {
       const { posts } = parseRss(response.data.contents);
-      const diffPosts = differenceBy(posts, watched.posts, 'title');
+      const diffPosts = differenceBy(posts, state.posts, 'title');
       if (diffPosts.length) {
         const newPosts = diffPosts.map((post) => ({ ...post, id: uniqueId(), feedId: feed.id }));
-        watched.posts = [...watched.posts, ...newPosts];
+        state.posts = [...state.posts, ...newPosts];
       }
     })
-    .catch(() => {
-      noop();
-    });
+    .catch(() => noop());
 };
 
-const autoUpdateFeed = (feed, watched, updateTimeout) => {
-  updateFeed(feed, watched)
+const autoUpdateFeed = (feed, state) => {
+  updateFeed(feed, state)
     .then(() => {
-      setTimeout(() => autoUpdateFeed(feed, watched, updateTimeout), updateTimeout);
+      setTimeout(() => autoUpdateFeed(feed, state), state.updateTimeout);
     });
 };
 
-export const submitHandler = (e, watched, updateTimeout) => {
+export const submitHandler = (e, state) => {
   e.preventDefault();
 
   const formData = new FormData(e.target);
   const url = formData.get('url');
 
-  const errorInput = validInput(url);
+  const errorInput = validateInput(url);
   if (errorInput) {
-    watched.form = { status: 'error', error: errorInput };
+    state.form = { status: 'error', error: errorInput };
     return;
   }
 
-  const existUrl = validUrl(url, watched.feeds);
-  if (existUrl) {
-    watched.form = { status: 'error', error: existUrl };
+  const existingUrl = validateUrl(url, state.feeds);
+  if (existingUrl) {
+    state.form = { status: 'error', error: existingUrl };
     return;
   }
 
-  watched.form = { status: 'loading', error: '' };
+  state.form = { status: 'loading', error: '' };
 
-  const proxyUrl = addProxy(url);
+  const urlWithProxy = addProxyToUrl(url);
 
-  axios.get(proxyUrl)
+  axios.get(urlWithProxy)
     .then((response) => {
       // console.log('response', response);
       const feedData = parseRss(response.data.contents);
       if (!feedData) {
-        watched.form = { status: 'error', error: 'notRss' };
+        state.form = { status: 'error', error: 'notRss' };
         return;
       }
 
-      watched.form = { status: 'loaded', error: '' };
+      state.form = { status: 'loaded', error: '' };
 
       const feedId = uniqueId();
 
       const feed = { ...feedData.feed, url, id: feedId };
       const posts = feedData.posts.map((post) => ({ ...post, id: uniqueId(), feedId }));
 
-      watched.feeds = [...watched.feeds, feed];
-      watched.posts = [...watched.posts, ...posts];
+      state.feeds = [...state.feeds, feed];
+      state.posts = [...state.posts, ...posts];
 
-      setTimeout(() => autoUpdateFeed(feed, watched, updateTimeout), updateTimeout);
+      setTimeout(() => autoUpdateFeed(feed, state), state.updateTimeout);
     })
     .catch(() => {
       // console.log('catch submit:', err.message);
-      watched.form = { status: 'error', error: 'networkErr' };
+      state.form = { status: 'error', error: 'networkErr' };
     });
 };
 
-export const feedsHandler = (e, watched) => {
-  // console.dir(e.target);
+export const feedsHandler = (e, state) => {
+  // console.log('feedsHandler', e.target);
   if (e.target.tagName === 'BUTTON') {
     const id = e.target.getAttribute('data-feed-id');
-    const feed = watched.feeds.find(({ feedId }) => feedId === id);
-    const { feedUrl } = feed;
-    updateFeed(feedUrl, watched);
+    const feed = state.feeds.find((i) => i.id === id);
+    updateFeed(feed, state);
   }
 };
 
-export const postsHandler = (e, watched) => {
-  // console.dir(e.target);
+export const postsHandler = (e, state) => {
+  // console.log('postsHandler', e.target);
   if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
     const id = e.target.getAttribute('data-post-id');
 
-    watched.posts.forEach((post) => {
+    state.posts.forEach((post) => {
       if (id === post.id) {
         post.readed = true;
       }
     });
 
     if (e.target.tagName === 'BUTTON') {
-      watched.modal = id;
+      state.modal = { postId: id };
     }
   }
+};
+
+export const postButtonPreviewHandler = (e, state, post) => {
+  // console.log('postButtonPreviewHandler', e.target);
+  e.preventDefault();
+  state.postForModal = post;
 };

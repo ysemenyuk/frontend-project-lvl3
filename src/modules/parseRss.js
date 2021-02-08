@@ -1,9 +1,9 @@
 const parse = (contents) => {
   const domparser = new DOMParser();
   const doc = domparser.parseFromString(contents, 'application/xml');
-  const rss = doc.querySelector('rss');
+  const parseError = doc.querySelector('parsererror');
 
-  if (!rss) {
+  if (parseError) {
     return null;
   }
 

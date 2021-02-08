@@ -8,7 +8,7 @@ export default {
       init: 'Input RSS link',
       loading: 'Loading...',
       loaded: 'Rss has been loaded',
-      existUrl: 'Rss already exists',
+      existingUrl: 'Rss already exists',
       notRss: "This source doesn't contain valid rss",
       notValidUrl: 'Must be valid url',
       networkErr: 'Network Error',
