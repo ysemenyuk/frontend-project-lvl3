@@ -31,11 +31,13 @@ beforeEach(async () => {
   run();
 });
 
-test('test1 valid input', () => {
+test('test1 valid input', async () => {
   userEvent.type(elements.input, 'notUrl');
   userEvent.click(elements.submit);
 
-  expect(elements.feedback).toHaveTextContent(/Must be valid url/i);
+  await waitFor(() => {
+    expect(elements.feedback).toHaveTextContent(/Must be valid url/i);
+  });
 });
 
 test('test2 network error', async () => {
@@ -89,9 +91,13 @@ test('test5 add feed and post and check exist url', async () => {
   expect(elements.submit).toBeEnabled();
 
   userEvent.click(elements.submit);
-  expect(elements.submit).toBeDisabled();
+  await waitFor(() => {
+    expect(elements.submit).toBeDisabled();
+  });
 
-  expect(elements.feedback).toHaveTextContent(/Loading.../i);
+  await waitFor(() => {
+    expect(elements.feedback).toHaveTextContent(/Loading.../i);
+  });
 
   await waitFor(() => {
     expect(elements.feedback).toHaveTextContent(/Rss has been loaded/i);
