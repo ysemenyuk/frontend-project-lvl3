@@ -147,7 +147,7 @@ const renderModal = (state) => {
   fullArticle.href = post.link;
 };
 
-const init = (state) => {
+export const init = (state) => {
   const form = document.querySelector('form');
   const feedsContainer = document.querySelector('.feeds');
   const postsContainer = document.querySelector('.posts');
@@ -162,13 +162,9 @@ const init = (state) => {
     e.preventDefault();
     input.value = e.target.textContent;
   });
-
-  renderForm(state);
-  renderFeeds(state);
-  renderPosts(state);
 };
 
-const view = (state) => {
+export const view = (state) => {
   const watchedState = onChange(state, (path) => {
     // console.log('onChange path:', { path });
     switch (path) {
@@ -190,7 +186,5 @@ const view = (state) => {
     }
   });
 
-  init(watchedState);
+  return watchedState;
 };
-
-export default view;

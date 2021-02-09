@@ -7,8 +7,8 @@ export default {
     feedback: {
       loading: 'Loading...',
       loaded: 'Rss has been loaded',
-      notValidUrl: 'Must be valid url',
-      existingUrl: 'Rss already exists',
+      inputUrlErr: 'Must be valid url',
+      existingUrlErr: 'Rss already exists',
       parsingErr: "This source doesn't contain valid rss",
       networkErr: 'Network Error',
       updateErr: 'Update Error',

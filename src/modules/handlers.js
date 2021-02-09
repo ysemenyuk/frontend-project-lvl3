@@ -6,7 +6,7 @@ import noop from 'lodash/noop';
 import differenceBy from 'lodash/differenceBy';
 
 import parseRss from './parseRss.js';
-import { addProxyToUrl, validateInput, validateUrl } from './utils.js';
+import { addProxyToUrl, validateInput } from './utils.js';
 
 const updateFeed = (feed, state) => {
   const proxyUrl = addProxyToUrl(feed.url);
@@ -19,13 +19,13 @@ const updateFeed = (feed, state) => {
         state.posts = [...state.posts, ...newPosts];
       }
     })
-    .catch(() => noop());
+    .catch(noop);
 };
 
-const autoUpdateFeed = (feed, state) => {
+const autoUpdateFeed = (feed, state, updateTimeout) => {
   updateFeed(feed, state)
     .then(() => {
-      setTimeout(() => autoUpdateFeed(feed, state), state.updateTimeout);
+      setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
     });
 };
 
@@ -35,15 +35,9 @@ export const submitHandler = (e, state) => {
   const formData = new FormData(e.target);
   const url = formData.get('url');
 
-  const errorInput = validateInput(url);
+  const errorInput = validateInput(url, state);
   if (errorInput) {
     state.form = { status: 'error', error: errorInput };
-    return;
-  }
-
-  const existingUrl = validateUrl(url, state.feeds);
-  if (existingUrl) {
-    state.form = { status: 'error', error: existingUrl };
     return;
   }
 
@@ -66,7 +60,8 @@ export const submitHandler = (e, state) => {
       state.feeds = [...state.feeds, feed];
       state.posts = [...state.posts, ...posts];
 
-      setTimeout(() => autoUpdateFeed(feed, state), state.updateTimeout);
+      const updateTimeout = 5000;
+      setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
     })
     .catch((err) => {
       if (err.isAxiosError) {
@@ -81,29 +76,24 @@ export const submitHandler = (e, state) => {
 
 export const feedsHandler = (e, state) => {
   if (e.target.tagName === 'BUTTON') {
-    const id = e.target.getAttribute('data-feed-id');
+    const id = e.target.dataset.feedId;
     const feed = state.feeds.find((i) => i.id === id);
     updateFeed(feed, state);
   }
 };
 
 export const postsHandler = (e, state) => {
-  if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
-    const id = e.target.getAttribute('data-post-id');
+  const id = e.target.dataset.postId;
 
+  if (id) {
     state.posts.forEach((post) => {
       if (id === post.id) {
         post.readed = true;
       }
     });
 
-    if (e.target.tagName === 'BUTTON') {
+    if (e.target.dataset.bsTarget === '#modal') {
       state.modal = { postId: id };
     }
   }
-};
-
-export const postPreviewButtonHandler = (e, state, post) => {
-  e.preventDefault();
-  state.postForModal = post;
 };

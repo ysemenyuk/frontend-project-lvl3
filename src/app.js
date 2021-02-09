@@ -3,15 +3,12 @@ import i18n from 'i18next';
 import { setLocale } from 'yup';
 
 import resources from './locales/index.js';
-import view from './modules/view.js';
+import { view, init } from './modules/view.js';
 
 const app = () => {
   const defaultLanguage = 'en';
-  const updateTimeout = 5000;
 
   const state = {
-    lng: defaultLanguage,
-    updateTimeout,
     form: {
       status: 'init',
       error: '',
@@ -25,7 +22,10 @@ const app = () => {
 
   setLocale({
     string: {
-      url: 'notValidUrl',
+      url: 'inputUrlErr',
+    },
+    mixed: {
+      notOneOf: 'existingUrlErr',
     },
   });
 
@@ -35,7 +35,11 @@ const app = () => {
     resources,
   };
 
-  i18n.init(i18nOptions).then(() => view(state));
+  i18n.init(i18nOptions)
+    .then(() => {
+      const watched = view(state);
+      init(watched);
+    });
 };
 
 export default app;
