@@ -1,13 +1,10 @@
-/* eslint-disable object-curly-newline */
 import onChange from 'on-change';
 import i18n from 'i18next';
-import { submitHandler, postsHandler, feedsHandler } from './handlers.js';
+// import { submitHandler, postsHandler, feedsHandler } from './handlers.js';
 
-const renderForm = (state) => {
+const renderForm = (state, elements) => {
   const { form } = state;
-  const feedback = document.querySelector('.feedback');
-  const button = document.querySelector('[type="submit"]');
-  const input = document.querySelector('[name="url"]');
+  const { feedback, addButton, input } = elements;
 
   switch (form.status) {
     case 'init':
@@ -22,12 +19,12 @@ const renderForm = (state) => {
       feedback.classList.remove('text-danger');
       input.classList.remove('is-invalid');
       input.setAttribute('readonly', 'true');
-      button.disabled = true;
+      addButton.disabled = true;
       break;
     case 'loaded':
       feedback.textContent = i18n.t(`feedback.${form.status}`);
-      input.removeAttribute('readonly', 'true');
-      button.disabled = false;
+      input.removeAttribute('readonly');
+      addButton.disabled = false;
       input.value = '';
       break;
     case 'error':
@@ -39,8 +36,8 @@ const renderForm = (state) => {
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
       input.classList.add('is-invalid');
-      input.removeAttribute('readonly', 'true');
-      button.disabled = false;
+      input.removeAttribute('readonly');
+      addButton.disabled = false;
       break;
     default:
       // console.log('unknown form status:', form.status);
@@ -57,8 +54,8 @@ const createFeedEl = (feed) => {
   return feedEl;
 };
 
-const renderFeeds = (state) => {
-  const feedsContainer = document.querySelector('.feeds');
+const renderFeeds = (state, elements) => {
+  const { feedsContainer } = elements;
 
   if (state.feeds.length) {
     const feedsList = document.createElement('ul');
@@ -68,7 +65,10 @@ const renderFeeds = (state) => {
       feedsList.prepend(createFeedEl(feed));
     });
 
-    feedsContainer.innerHTML = '<h2>Feeds</h2>';
+    feedsContainer.innerHTML = '';
+    const title = document.createElement('h2');
+    title.textContent = i18n.t('feeds.title');
+    feedsContainer.append(title);
     feedsContainer.append(feedsList);
   } else {
     feedsContainer.innerHTML = '';
@@ -97,7 +97,7 @@ const createPreviewButton = (post) => {
   button.setAttribute('type', 'button');
   button.setAttribute('data-bs-toggle', 'modal');
   button.setAttribute('data-bs-target', '#modal');
-  button.textContent = 'Preview';
+  button.textContent = i18n.t('buttons.preview');
 
   return button;
 };
@@ -115,8 +115,8 @@ const createPostEl = (post) => {
   return postEl;
 };
 
-const renderPosts = (state) => {
-  const postsContainer = document.querySelector('.posts');
+const renderPosts = (state, elements) => {
+  const { postsContainer } = elements;
 
   if (state.posts.length) {
     const postsList = document.createElement('ul');
@@ -126,59 +126,40 @@ const renderPosts = (state) => {
       postsList.prepend(createPostEl(post));
     });
 
-    postsContainer.innerHTML = '<h2>Posts</h2>';
+    postsContainer.innerHTML = '';
+    const title = document.createElement('h2');
+    title.textContent = i18n.t('posts.title');
+    postsContainer.append(title);
     postsContainer.append(postsList);
   } else {
     postsContainer.innerHTML = '';
   }
 };
 
-const renderModal = (state) => {
-  const modal = document.querySelector('#modal');
-  const modalTitle = modal.querySelector('.modal-title');
-  const modalBody = modal.querySelector('.modal-body');
-  const fullArticle = modal.querySelector('.full-article');
+const renderModal = (state, elements) => {
+  const { modalTitle, modalBody, modalFullArticle } = elements;
 
-  const id = state.modal.postId;
-  const post = state.posts.find((i) => i.id === id);
+  const post = state.posts.find((i) => i.id === state.modal.postId);
 
   modalTitle.textContent = post.title;
   modalBody.textContent = post.description;
-  fullArticle.href = post.link;
+  modalFullArticle.href = post.link;
 };
 
-export const init = (state) => {
-  const form = document.querySelector('form');
-  const feedsContainer = document.querySelector('.feeds');
-  const postsContainer = document.querySelector('.posts');
-
-  form.addEventListener('submit', (e) => submitHandler(e, state));
-  feedsContainer.addEventListener('click', (e) => feedsHandler(e, state));
-  postsContainer.addEventListener('click', (e) => postsHandler(e, state));
-
-  const input = document.querySelector('[name="url"]');
-  const example = document.querySelector('#example');
-  example.addEventListener('click', (e) => {
-    e.preventDefault();
-    input.value = e.target.textContent;
-  });
-};
-
-export const view = (state) => {
+const view = (state, elements) => {
   const watchedState = onChange(state, (path) => {
-    // console.log('onChange path:', { path });
     switch (path) {
       case 'form':
-        renderForm(watchedState);
+        renderForm(watchedState, elements);
         break;
       case 'feeds':
-        renderFeeds(watchedState);
+        renderFeeds(watchedState, elements);
         break;
       case 'posts':
-        renderPosts(watchedState);
+        renderPosts(watchedState, elements);
         break;
       case 'modal':
-        renderModal(watchedState);
+        renderModal(watchedState, elements);
         break;
       default:
         // console.log('unknown path:', path);
@@ -188,3 +169,5 @@ export const view = (state) => {
 
   return watchedState;
 };
+
+export default view;

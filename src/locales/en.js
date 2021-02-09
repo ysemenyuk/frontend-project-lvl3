@@ -13,5 +13,16 @@ export default {
       networkErr: 'Network Error',
       updateErr: 'Update Error',
     },
+    feeds: {
+      title: 'Feeds',
+    },
+    posts: {
+      title: 'Posts',
+    },
+    buttons: {
+      preview: 'Prewiew',
+      update: 'Update',
+      delete: 'Delete',
+    },
   },
 };

@@ -7,6 +7,12 @@ export const addProxyToUrl = (url) => {
   return urlWithProxy.toString();
 };
 
+// export const validateInput = (value, state) => {
+//   const existingUrls = state.feeds.map((feed) => feed.url);
+//   const schema = yup.string().url().notOneOf(existingUrls);
+//   return schema.validate(value);
+// };
+
 export const validateInput = (value, state) => {
   const existingUrls = state.feeds.map((feed) => feed.url);
   const schema = yup.string().url().notOneOf(existingUrls);

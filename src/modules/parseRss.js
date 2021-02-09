@@ -1,13 +1,10 @@
-const parse = (contents) => {
+export default (contents) => {
   const domparser = new DOMParser();
   const doc = domparser.parseFromString(contents, 'application/xml');
   const parseError = doc.querySelector('parsererror');
 
   if (parseError) {
-    const err = new Error('notRss');
-    err.isParsingError = true;
-    throw err;
-    // return null;
+    throw new Error('parsingErr');
   }
 
   const channel = doc.querySelector('channel');
@@ -31,5 +28,3 @@ const parse = (contents) => {
 
   return { feed, posts };
 };
-
-export default parse;

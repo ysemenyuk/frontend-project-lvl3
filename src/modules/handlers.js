@@ -1,12 +1,19 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
+import * as yup from 'yup';
 
 import uniqueId from 'lodash/uniqueId';
 import noop from 'lodash/noop';
 import differenceBy from 'lodash/differenceBy';
 
 import parseRss from './parseRss.js';
-import { addProxyToUrl, validateInput } from './utils.js';
+
+const addProxyToUrl = (url) => {
+  const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
+  urlWithProxy.searchParams.set('url', url);
+  urlWithProxy.searchParams.set('disableCache', 'true');
+  return urlWithProxy.toString();
+};
 
 const updateFeed = (feed, state) => {
   const proxyUrl = addProxyToUrl(feed.url);
@@ -18,13 +25,13 @@ const updateFeed = (feed, state) => {
         const newPosts = diffPosts.map((post) => ({ ...post, id: uniqueId(), feedId: feed.id }));
         state.posts = [...state.posts, ...newPosts];
       }
-    })
-    .catch(noop);
+    });
 };
 
 const autoUpdateFeed = (feed, state, updateTimeout) => {
   updateFeed(feed, state)
-    .then(() => {
+    .catch(noop)
+    .finally(() => {
       setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
     });
 };
@@ -35,23 +42,16 @@ export const submitHandler = (e, state) => {
   const formData = new FormData(e.target);
   const url = formData.get('url');
 
-  const errorInput = validateInput(url, state);
-  if (errorInput) {
-    state.form = { status: 'error', error: errorInput };
-    return;
-  }
+  const existingUrls = state.feeds.map((feed) => feed.url);
+  const schema = yup.string().url().notOneOf(existingUrls);
 
-  state.form = { status: 'loading', error: '' };
-
-  const urlWithProxy = addProxyToUrl(url);
-
-  axios.get(urlWithProxy)
-    .then((response) => {
-      // console.log('response', response);
-      const feedData = parseRss(response.data.contents);
-
-      state.form = { status: 'loaded', error: '' };
-
+  schema.validate(url)
+    .then(() => {
+      state.form = { status: 'loading', error: '' };
+      return axios.get(addProxyToUrl(url));
+    })
+    .then((resp) => {
+      const feedData = parseRss(resp.data.contents);
       const feedId = uniqueId();
 
       const feed = { ...feedData.feed, url, id: feedId };
@@ -59,6 +59,7 @@ export const submitHandler = (e, state) => {
 
       state.feeds = [...state.feeds, feed];
       state.posts = [...state.posts, ...posts];
+      state.form = { status: 'loaded', error: '' };
 
       const updateTimeout = 5000;
       setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
@@ -66,8 +67,6 @@ export const submitHandler = (e, state) => {
     .catch((err) => {
       if (err.isAxiosError) {
         state.form = { status: 'error', error: 'networkErr' };
-      } else if (err.isParsingError) {
-        state.form = { status: 'error', error: 'parsingErr' };
       } else {
         state.form = { status: 'error', error: err.message };
       }
@@ -91,9 +90,9 @@ export const postsHandler = (e, state) => {
         post.readed = true;
       }
     });
+  }
 
-    if (e.target.dataset.bsTarget === '#modal') {
-      state.modal = { postId: id };
-    }
+  if (e.target.dataset.bsTarget === '#modal') {
+    state.modal = { postId: id };
   }
 };
