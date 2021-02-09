@@ -20,7 +20,7 @@ export default {
       title: 'Posts',
     },
     buttons: {
-      preview: 'Prewiew',
+      preview: 'Preview',
       update: 'Update',
       delete: 'Delete',
     },
