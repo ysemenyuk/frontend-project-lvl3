@@ -8,6 +8,17 @@ import differenceBy from 'lodash/differenceBy';
 
 import parseRss from './parseRss.js';
 
+const validateInput = (value, state) => {
+  const existingUrls = state.feeds.map((feed) => feed.url);
+  const schema = yup.string().url().notOneOf(existingUrls);
+  try {
+    schema.validateSync(value);
+    return null;
+  } catch (err) {
+    return err.message;
+  }
+};
+
 const addProxyToUrl = (url) => {
   const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
   urlWithProxy.searchParams.set('url', url);
@@ -42,14 +53,15 @@ export const submitHandler = (e, state) => {
   const formData = new FormData(e.target);
   const url = formData.get('url');
 
-  const existingUrls = state.feeds.map((feed) => feed.url);
-  const schema = yup.string().url().notOneOf(existingUrls);
+  const errorInput = validateInput(url, state);
+  if (errorInput) {
+    state.form = { status: 'error', error: errorInput };
+    return;
+  }
 
-  schema.validate(url)
-    .then(() => {
-      state.form = { status: 'loading', error: '' };
-      return axios.get(addProxyToUrl(url));
-    })
+  state.form = { status: 'loading', error: '' };
+
+  axios.get(addProxyToUrl(url))
     .then((resp) => {
       const feedData = parseRss(resp.data.contents);
       const feedId = uniqueId();
