@@ -5,6 +5,7 @@ export default {
       ru: 'Русский',
     },
     feedback: {
+      clear: '',
       loading: 'Loading...',
       loaded: 'Rss has been loaded',
       inputUrlErr: 'Must be valid url',

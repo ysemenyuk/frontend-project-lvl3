@@ -4,8 +4,8 @@ import i18n from 'i18next';
 import { setLocale } from 'yup';
 
 import resources from './locales/index.js';
-import view from './modules/view.js';
-import { submitHandler, postsHandler, feedsHandler } from './modules/handlers.js';
+import view from './view.js';
+import { submitHandler, postsHandler, feedsHandler } from './handlers.js';
 
 const app = () => {
   const defaultLanguage = 'en';
@@ -13,13 +13,9 @@ const app = () => {
   const state = {
     feeds: [],
     posts: [],
-    loadingProcess: {
-      status: 'idle',
-      error: null,
-    },
     form: {
-      status: 'filling', // filling, loading, loaded, error
-      error: null,
+      processState: 'idle', // loading, loaded, failed
+      feedback: null, // loading, loaded, error.messages
     },
     modal: {
       postId: null,

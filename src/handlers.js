@@ -36,15 +36,14 @@ const updateFeed = (feed, state) => {
         const newPosts = diffPosts.map((post) => ({ ...post, id: uniqueId(), feedId: feed.id }));
         state.posts = [...state.posts, ...newPosts];
       }
-    });
+    })
+    .catch(noop);
 };
 
 const autoUpdateFeed = (feed, state, updateTimeout) => {
-  updateFeed(feed, state)
-    .catch(noop)
-    .finally(() => {
-      setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
-    });
+  updateFeed(feed, state).then(() => {
+    setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
+  });
 };
 
 export const submitHandler = (e, state) => {
@@ -55,11 +54,13 @@ export const submitHandler = (e, state) => {
 
   const errorInput = validateInput(url, state);
   if (errorInput) {
-    state.form = { status: 'error', error: errorInput };
+    state.form.processState = 'failed';
+    state.form.feedback = errorInput;
     return;
   }
   // state.form = { valid: true, error: null };
-  state.form = { status: 'loading', error: null };
+  state.form.processState = 'loading';
+  state.form.feedback = 'loading';
 
   axios.get(addProxyToUrl(url))
     .then((resp) => {
@@ -71,18 +72,20 @@ export const submitHandler = (e, state) => {
 
       state.feeds = [...state.feeds, feed];
       state.posts = [...state.posts, ...posts];
-      state.form = { status: 'loaded', error: null };
+      state.form.processState = 'loaded';
+      state.form.feedback = 'loaded';
 
       const updateTimeout = 5000;
       setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
     })
     .catch((err) => {
+      state.form.processState = 'failed';
       if (err.isAxiosError) {
-        state.form = { status: 'error', error: 'networkErr' };
+        state.form.feedback = 'networkErr';
       } else if (err.isParsingError) {
-        state.form = { status: 'error', error: 'parsingErr' };
+        state.form.feedback = 'parsingErr';
       } else {
-        state.form = { status: 'error', error: 'unknownErr' };
+        state.form.feedback = 'unknownErr';
       }
     });
 };
@@ -99,11 +102,7 @@ export const postsHandler = (e, state) => {
   const id = e.target.dataset.postId;
 
   if (id) {
-    state.posts.forEach((post) => {
-      if (id === post.id) {
-        post.readed = true;
-      }
-    });
+    state.ui.seenPosts.add(id);
   }
 
   if (e.target.dataset.bsTarget === '#modal') {
