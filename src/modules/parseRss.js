@@ -4,7 +4,9 @@ export default (contents) => {
   const parseError = doc.querySelector('parsererror');
 
   if (parseError) {
-    throw new Error('parsingErr');
+    const error = new Error(parseError.textContent);
+    error.isParsingError = true;
+    throw error;
   }
 
   const channel = doc.querySelector('channel');

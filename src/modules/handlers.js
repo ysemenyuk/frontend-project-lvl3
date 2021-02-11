@@ -58,8 +58,8 @@ export const submitHandler = (e, state) => {
     state.form = { status: 'error', error: errorInput };
     return;
   }
-
-  state.form = { status: 'loading', error: '' };
+  // state.form = { valid: true, error: null };
+  state.form = { status: 'loading', error: null };
 
   axios.get(addProxyToUrl(url))
     .then((resp) => {
@@ -71,7 +71,7 @@ export const submitHandler = (e, state) => {
 
       state.feeds = [...state.feeds, feed];
       state.posts = [...state.posts, ...posts];
-      state.form = { status: 'loaded', error: '' };
+      state.form = { status: 'loaded', error: null };
 
       const updateTimeout = 5000;
       setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
@@ -79,8 +79,10 @@ export const submitHandler = (e, state) => {
     .catch((err) => {
       if (err.isAxiosError) {
         state.form = { status: 'error', error: 'networkErr' };
+      } else if (err.isParsingError) {
+        state.form = { status: 'error', error: 'parsingErr' };
       } else {
-        state.form = { status: 'error', error: err.message };
+        state.form = { status: 'error', error: 'unknownErr' };
       }
     });
 };

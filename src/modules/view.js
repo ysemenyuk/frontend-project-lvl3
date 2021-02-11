@@ -3,44 +3,56 @@ import i18n from 'i18next';
 // import { submitHandler, postsHandler, feedsHandler } from './handlers.js';
 
 const renderForm = (state, elements) => {
-  const { form } = state;
-  const { feedback, addButton, input } = elements;
+  const { form: { status } } = state;
+  const { input, submit } = elements;
 
-  switch (form.status) {
-    case 'init':
+  switch (status) {
+    case 'loading':
+      input.classList.remove('is-invalid');
+      input.setAttribute('readonly', 'true');
+      submit.disabled = true;
+      break;
+    case 'filling':
+    case 'loaded':
+      input.value = '';
+      input.classList.remove('is-invalid');
+      input.removeAttribute('readonly');
+      submit.disabled = false;
+      break;
+    case 'error':
+      input.classList.add('is-invalid');
+      input.removeAttribute('readonly');
+      submit.disabled = false;
+      break;
+    default:
+      // console.log('dafault form', state.form);
+      // throw new Error('unknown form status:', form.status);
+  }
+};
+
+const renderFeedback = (state, elements) => {
+  const { form: { status, error } } = state;
+  const { feedback } = elements;
+
+  switch (status) {
+    case 'filling':
       feedback.textContent = '';
       feedback.classList.remove('text-success');
       feedback.classList.remove('text-danger');
-      input.classList.remove('is-invalid');
       break;
     case 'loading':
-      feedback.textContent = i18n.t(`feedback.${form.status}`);
+    case 'loaded':
+      feedback.textContent = i18n.t(`feedback.${status}`);
       feedback.classList.add('text-success');
       feedback.classList.remove('text-danger');
-      input.classList.remove('is-invalid');
-      input.setAttribute('readonly', 'true');
-      addButton.disabled = true;
-      break;
-    case 'loaded':
-      feedback.textContent = i18n.t(`feedback.${form.status}`);
-      input.removeAttribute('readonly');
-      addButton.disabled = false;
-      input.value = '';
       break;
     case 'error':
-      if (i18n.exists(`feedback.${form.error}`)) {
-        feedback.textContent = i18n.t(`feedback.${form.error}`);
-      } else {
-        feedback.textContent = form.error;
-      }
+      feedback.textContent = i18n.t(`feedback.${error}`);
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
-      input.classList.add('is-invalid');
-      input.removeAttribute('readonly');
-      addButton.disabled = false;
       break;
     default:
-      // console.log('unknown form status:', form.status);
+      // console.log('dafault switch feedback:', state.form);
       // throw new Error('unknown form status:', form.status);
   }
 };
@@ -148,9 +160,11 @@ const renderModal = (state, elements) => {
 
 const view = (state, elements) => {
   const watchedState = onChange(state, (path) => {
+    console.log('watchedState path:', path);
     switch (path) {
       case 'form':
         renderForm(watchedState, elements);
+        renderFeedback(watchedState, elements);
         break;
       case 'feeds':
         renderFeeds(watchedState, elements);

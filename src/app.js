@@ -11,21 +11,28 @@ const app = () => {
   const defaultLanguage = 'en';
 
   const state = {
-    form: {
-      status: 'init',
-      error: '',
-    },
     feeds: [],
     posts: [],
+    loadingProcess: {
+      status: 'idle',
+      error: null,
+    },
+    form: {
+      status: 'filling', // filling, loading, loaded, error
+      error: null,
+    },
     modal: {
-      postId: '',
+      postId: null,
+    },
+    ui: {
+      seenPosts: new Set(),
     },
   };
 
   const elements = {
     form: document.querySelector('form'),
     input: document.querySelector('[name="url"]'),
-    addButton: document.querySelector('[type="submit"]'),
+    submit: document.querySelector('[type="submit"]'),
     feedback: document.querySelector('.feedback'),
     example: document.querySelector('#example'),
     feedsContainer: document.querySelector('.feeds'),
