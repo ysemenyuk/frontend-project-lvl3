@@ -11,17 +11,23 @@ const app = () => {
   const defaultLanguage = 'en';
 
   const state = {
+    form: {
+      status: 'filling', // ???
+      valid: false,
+      error: null,
+    },
+    loadingProcess: {
+      status: 'idle', // loading, loaded, failed
+      error: null,
+    },
     feeds: [],
     posts: [],
-    form: {
-      processState: 'idle', // loading, loaded, failed
-      feedback: null, // loading, loaded, error.messages
-    },
     modal: {
       postId: null,
     },
     ui: {
       seenPosts: new Set(),
+      likedPosts: new Set(),
     },
   };
 

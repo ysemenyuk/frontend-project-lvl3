@@ -54,13 +54,14 @@ export const submitHandler = (e, state) => {
 
   const errorInput = validateInput(url, state);
   if (errorInput) {
-    state.form.processState = 'failed';
-    state.form.feedback = errorInput;
+    state.form = { valid: false, error: errorInput };
     return;
   }
-  // state.form = { valid: true, error: null };
-  state.form.processState = 'loading';
-  state.form.feedback = 'loading';
+  state.form = { valid: true, error: null };
+  state.loadingProcess = { status: 'loading', error: null };
+
+  // state.form.processState = 'loading';
+  // state.form.feedback = 'loading';
 
   axios.get(addProxyToUrl(url))
     .then((resp) => {
@@ -72,20 +73,23 @@ export const submitHandler = (e, state) => {
 
       state.feeds = [...state.feeds, feed];
       state.posts = [...state.posts, ...posts];
-      state.form.processState = 'loaded';
-      state.form.feedback = 'loaded';
+      state.loadingProcess = { status: 'loaded', error: null };
+      // state.form.processState = 'loaded';
+      // state.form.feedback = 'loaded';
 
       const updateTimeout = 5000;
       setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
     })
     .catch((err) => {
-      state.form.processState = 'failed';
       if (err.isAxiosError) {
-        state.form.feedback = 'networkErr';
+        state.loadingProcess = { status: 'failed', error: 'networkErr' };
+        // state.form.feedback = 'networkErr';
       } else if (err.isParsingError) {
-        state.form.feedback = 'parsingErr';
+        state.loadingProcess = { status: 'failed', error: 'parsingErr' };
+        // state.form.feedback = 'parsingErr';
       } else {
-        state.form.feedback = 'unknownErr';
+        state.loadingProcess = { status: 'failed', error: 'unknownErr' };
+        // state.form.feedback = 'unknownErr';
       }
     });
 };

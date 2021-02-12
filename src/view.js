@@ -1,23 +1,29 @@
 import onChange from 'on-change';
 import i18n from 'i18next';
 
-const renderForm = (state, elements) => {
-  const { form } = state;
-  const { input, submit } = elements;
+const renderLoadingProcess = (state, elements) => {
+  const { loadingProcess: { status, error } } = state;
+  const { input, submit, feedback } = elements;
 
-  switch (form.processState) {
+  switch (status) {
     case 'loading':
+      feedback.textContent = i18n.t(`feedback.${status}`);
+      feedback.classList.add('text-success');
       input.classList.remove('is-invalid');
       input.setAttribute('readonly', 'true');
       submit.setAttribute('disabled', 'true');
       break;
     case 'loaded':
+      feedback.textContent = i18n.t(`feedback.${status}`);
+      feedback.classList.add('text-success');
       input.value = '';
       input.classList.remove('is-invalid');
       input.removeAttribute('readonly');
       submit.removeAttribute('disabled');
       break;
     case 'failed':
+      feedback.textContent = i18n.t(`feedback.${error}`);
+      feedback.classList.add('text-danger');
       input.classList.add('is-invalid');
       input.removeAttribute('readonly');
       submit.removeAttribute('disabled');
@@ -27,21 +33,22 @@ const renderForm = (state, elements) => {
   }
 };
 
-const renderFeedback = (state, elements) => {
-  const { form } = state;
-  const { feedback } = elements;
+const renderForm = (state, elements) => {
+  const { form: { valid, error } } = state;
+  const { input, feedback } = elements;
 
-  feedback.textContent = i18n.t(`feedback.${form.feedback}`);
-
-  switch (form.processState) {
-    case 'loading':
-    case 'loaded':
-      feedback.classList.add('text-success');
+  switch (valid) {
+    case true:
+      feedback.textContent = '';
+      feedback.classList.remove('text-success');
       feedback.classList.remove('text-danger');
+      input.classList.remove('is-invalid');
       break;
-    case 'failed':
+    case false:
+      feedback.textContent = i18n.t(`feedback.${error}`);
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
+      input.classList.add('is-invalid');
       break;
     default:
       // console.log('dafault feedback:', status);
@@ -153,11 +160,11 @@ const view = (state, elements) => {
   const watchedState = onChange(state, (path) => {
     // console.log('watchedState path:', path);
     switch (path) {
-      case 'form.processState':
+      case 'form':
         renderForm(watchedState, elements);
         break;
-      case 'form.feedback':
-        renderFeedback(watchedState, elements);
+      case 'loadingProcess':
+        renderLoadingProcess(watchedState, elements);
         break;
       case 'feeds':
         renderFeeds(watchedState, elements);
