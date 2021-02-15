@@ -1,18 +1,18 @@
-/* eslint-disable object-curly-newline */
 import 'bootstrap/js/dist/modal.js';
 import i18n from 'i18next';
 import { setLocale } from 'yup';
+// import yupLocale from './locales/yupLocale.js';
+// import './locales/yupLocale.js';
 
 import resources from './locales/index.js';
 import view from './view.js';
-import { submitHandler, postsHandler, feedsHandler } from './handlers.js';
+import { exampleHandler, submitHandler, postsHandler } from './handlers.js';
 
 const app = () => {
   const defaultLanguage = 'en';
 
   const state = {
     form: {
-      status: 'filling', // ???
       valid: false,
       error: null,
     },
@@ -27,8 +27,8 @@ const app = () => {
     },
     ui: {
       seenPosts: new Set(),
-      likedPosts: new Set(),
     },
+    example: null,
   };
 
   const elements = {
@@ -64,16 +64,11 @@ const app = () => {
     .then(() => {
       const watched = view(state, elements);
 
-      const { form, feedsContainer, postsContainer, input, example } = elements;
+      const { form, postsContainer, example } = elements;
 
       form.addEventListener('submit', (e) => submitHandler(e, watched));
-      feedsContainer.addEventListener('click', (e) => feedsHandler(e, watched));
       postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
-
-      example.addEventListener('click', (e) => {
-        e.preventDefault();
-        input.value = e.target.textContent;
-      });
+      example.addEventListener('click', (e) => exampleHandler(e, watched));
     });
 };
 

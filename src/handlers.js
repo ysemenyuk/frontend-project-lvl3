@@ -10,7 +10,7 @@ import parseRss from './parseRss.js';
 
 const validateInput = (value, state) => {
   const existingUrls = state.feeds.map((feed) => feed.url);
-  const schema = yup.string().url().notOneOf(existingUrls);
+  const schema = yup.string().required().url().notOneOf(existingUrls);
   try {
     schema.validateSync(value);
     return null;
@@ -41,9 +41,16 @@ const updateFeed = (feed, state) => {
 };
 
 const autoUpdateFeed = (feed, state, updateTimeout) => {
-  updateFeed(feed, state).then(() => {
-    setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
-  });
+  updateFeed(feed, state)
+    .then(() => {
+      setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
+    });
+};
+
+export const exampleHandler = (e, state) => {
+  e.preventDefault();
+  state.example = '';
+  state.example = e.target.textContent;
 };
 
 export const submitHandler = (e, state) => {
@@ -60,9 +67,6 @@ export const submitHandler = (e, state) => {
   state.form = { valid: true, error: null };
   state.loadingProcess = { status: 'loading', error: null };
 
-  // state.form.processState = 'loading';
-  // state.form.feedback = 'loading';
-
   axios.get(addProxyToUrl(url))
     .then((resp) => {
       const feedData = parseRss(resp.data.contents);
@@ -74,8 +78,6 @@ export const submitHandler = (e, state) => {
       state.feeds = [...state.feeds, feed];
       state.posts = [...state.posts, ...posts];
       state.loadingProcess = { status: 'loaded', error: null };
-      // state.form.processState = 'loaded';
-      // state.form.feedback = 'loaded';
 
       const updateTimeout = 5000;
       setTimeout(() => autoUpdateFeed(feed, state, updateTimeout), updateTimeout);
@@ -83,23 +85,12 @@ export const submitHandler = (e, state) => {
     .catch((err) => {
       if (err.isAxiosError) {
         state.loadingProcess = { status: 'failed', error: 'networkErr' };
-        // state.form.feedback = 'networkErr';
       } else if (err.isParsingError) {
         state.loadingProcess = { status: 'failed', error: 'parsingErr' };
-        // state.form.feedback = 'parsingErr';
       } else {
         state.loadingProcess = { status: 'failed', error: 'unknownErr' };
-        // state.form.feedback = 'unknownErr';
       }
     });
-};
-
-export const feedsHandler = (e, state) => {
-  if (e.target.tagName === 'BUTTON') {
-    const id = e.target.dataset.feedId;
-    const feed = state.feeds.find((i) => i.id === id);
-    updateFeed(feed, state);
-  }
 };
 
 export const postsHandler = (e, state) => {

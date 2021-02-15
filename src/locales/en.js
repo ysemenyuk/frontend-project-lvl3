@@ -22,8 +22,6 @@ export default {
     },
     buttons: {
       preview: 'Preview',
-      update: 'Update',
-      delete: 'Delete',
     },
   },
 };

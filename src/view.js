@@ -1,6 +1,11 @@
 import onChange from 'on-change';
 import i18n from 'i18next';
 
+const renderExample = (state, elements) => {
+  const { input } = elements;
+  input.value = state.example;
+};
+
 const renderLoadingProcess = (state, elements) => {
   const { loadingProcess: { status, error } } = state;
   const { input, submit, feedback } = elements;
@@ -29,6 +34,7 @@ const renderLoadingProcess = (state, elements) => {
       submit.removeAttribute('disabled');
       break;
     default:
+      break;
       // console.log('dafault form', status);
   }
 };
@@ -51,6 +57,7 @@ const renderForm = (state, elements) => {
       input.classList.add('is-invalid');
       break;
     default:
+      break;
       // console.log('dafault feedback:', status);
   }
 };
@@ -176,9 +183,11 @@ const view = (state, elements) => {
       case 'modal':
         renderModal(watchedState, elements);
         break;
+      case 'example':
+        renderExample(watchedState, elements);
+        break;
       default:
-        // console.log('unknown path:', path);
-        // throw new Error('unknown path:', path);
+        break;
     }
   });
 
