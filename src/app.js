@@ -8,10 +8,13 @@ import view from './view.js';
 import { exampleHandler, submitHandler, postsHandler } from './handlers.js';
 
 const app = () => {
-  const defaultLanguage = 'en';
+  const defaultLanguage = 'ru';
 
   const state = {
     form: {
+      status: null,
+    },
+    validateInputProcess: {
       valid: false,
       error: null,
     },
@@ -31,11 +34,14 @@ const app = () => {
   };
 
   const elements = {
+    title: document.querySelector('h1'),
+    description: document.querySelector('.lead'),
+    example: document.querySelector('.text-muted > span'),
+    exampleLink: document.querySelector('#exampleLink'),
     form: document.querySelector('form'),
     input: document.querySelector('[name="url"]'),
     submit: document.querySelector('[type="submit"]'),
     feedback: document.querySelector('.feedback'),
-    example: document.querySelector('#example'),
     feedsContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
     modal: document.querySelector('#modal'),
@@ -55,11 +61,12 @@ const app = () => {
   i18n.init(i18nOptions)
     .then(() => {
       const watched = view(state, elements);
+      watched.form = { status: 'init' };
 
-      const { form, postsContainer, example } = elements;
+      const { form, postsContainer, exampleLink } = elements;
 
       form.addEventListener('submit', (e) => submitHandler(e, watched));
-      example.addEventListener('click', (e) => exampleHandler(e, watched));
+      exampleLink.addEventListener('click', (e) => exampleHandler(e, watched));
       postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
     });
 };

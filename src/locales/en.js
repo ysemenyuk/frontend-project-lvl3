@@ -4,6 +4,10 @@ export default {
       en: 'English',
       ru: 'Русский',
     },
+    title: 'RSS reader',
+    description: 'Start reading RSS today! It is easy, it is nicely.',
+    inputPlaceholder: 'RSS link',
+    example: 'Example',
     feedback: {
       clear: '',
       loading: 'Loading...',
@@ -14,7 +18,6 @@ export default {
         existing: 'Rss already exists',
         parsing: "This source doesn't contain valid rss",
         network: 'Network Error',
-        update: 'Update Error',
         unknown: 'Unknown error',
       },
     },

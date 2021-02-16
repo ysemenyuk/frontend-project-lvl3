@@ -1,5 +1,25 @@
+/* eslint-disable object-curly-newline */
 import onChange from 'on-change';
 import i18n from 'i18next';
+
+const renderForm = (state, elements) => {
+  const { status } = state.form;
+  const { title, description, example, input, feedback } = elements;
+  switch (status) {
+    case 'init':
+      title.textContent = i18n.t('title');
+      description.textContent = i18n.t('description');
+      input.placeholder = i18n.t('inputPlaceholder');
+      example.textContent = i18n.t('example');
+      break;
+    case 'reset':
+      input.value = '';
+      feedback.textContent = '';
+      break;
+    default:
+      break;
+  }
+};
 
 const renderExample = (state, elements) => {
   const { input } = elements;
@@ -38,8 +58,8 @@ const renderLoadingProcess = (state, elements) => {
   }
 };
 
-const renderForm = (state, elements) => {
-  const { form: { valid, error } } = state;
+const renderValidateInputProcess = (state, elements) => {
+  const { validateInputProcess: { valid, error } } = state;
   const { input, feedback } = elements;
 
   switch (valid) {
@@ -166,6 +186,9 @@ const view = (state, elements) => {
     switch (path) {
       case 'form':
         renderForm(watchedState, elements);
+        break;
+      case 'validateInputProcess':
+        renderValidateInputProcess(watchedState, elements);
         break;
       case 'loadingProcess':
         renderLoadingProcess(watchedState, elements);

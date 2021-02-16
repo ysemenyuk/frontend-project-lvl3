@@ -61,10 +61,10 @@ export const submitHandler = (e, state) => {
 
   const errorInput = validateInput(url, state);
   if (errorInput) {
-    state.form = { valid: false, error: errorInput.key };
+    state.validateInputProcess = { valid: false, error: errorInput.key };
     return;
   }
-  state.form = { valid: true, error: null };
+  state.validateInputProcess = { valid: true, error: null };
   state.loadingProcess = { status: 'loading', error: null };
 
   axios.get(addProxyToUrl(url))

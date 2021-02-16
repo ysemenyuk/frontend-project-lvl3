@@ -36,7 +36,7 @@ test('test1 valid input', async () => {
   userEvent.click(elements.submit);
 
   await waitFor(() => {
-    expect(elements.feedback).toHaveTextContent(/Must be valid url/i);
+    expect(elements.feedback).toHaveTextContent(/Ссылка должна быть валидным URL/i);
   });
 });
 
@@ -52,7 +52,7 @@ test('test2 network error', async () => {
   userEvent.click(elements.submit);
 
   await waitFor(() => {
-    expect(elements.feedback).toHaveTextContent(/Network Error/i);
+    expect(elements.feedback).toHaveTextContent(/Ошибка сети/i);
   });
 
   scope.done();
@@ -71,7 +71,7 @@ test('test4 not rss', async () => {
   userEvent.click(elements.submit);
 
   await waitFor(() => {
-    expect(elements.feedback).toHaveTextContent(/This source doesn't contain valid rss/i);
+    expect(elements.feedback).toHaveTextContent(/Ресурс не содержит валидный RSS/i);
   });
 
   scope.done();
@@ -96,11 +96,11 @@ test('test5 add feed and post and check exist url', async () => {
   });
 
   await waitFor(() => {
-    expect(elements.feedback).toHaveTextContent(/Loading.../i);
+    expect(elements.feedback).toHaveTextContent(/Загрузка.../i);
   });
 
   await waitFor(() => {
-    expect(elements.feedback).toHaveTextContent(/Rss has been loaded/i);
+    expect(elements.feedback).toHaveTextContent(/RSS успешно загружен/i);
   });
 
   await waitFor(() => {
@@ -114,7 +114,7 @@ test('test5 add feed and post and check exist url', async () => {
   userEvent.click(elements.submit);
 
   await waitFor(() => {
-    expect(elements.feedback).toHaveTextContent(/Rss already exists/i);
+    expect(elements.feedback).toHaveTextContent(/RSS уже существует/i);
   });
 
   scope.done();
