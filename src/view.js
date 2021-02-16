@@ -27,7 +27,7 @@ const renderLoadingProcess = (state, elements) => {
       submit.removeAttribute('disabled');
       break;
     case 'failed':
-      feedback.textContent = i18n.t(`feedback.${error}`);
+      feedback.textContent = i18n.t(`feedback.errors.${error}`);
       feedback.classList.add('text-danger');
       input.classList.add('is-invalid');
       input.removeAttribute('readonly');
@@ -35,7 +35,6 @@ const renderLoadingProcess = (state, elements) => {
       break;
     default:
       break;
-      // console.log('dafault form', status);
   }
 };
 
@@ -51,14 +50,13 @@ const renderForm = (state, elements) => {
       input.classList.remove('is-invalid');
       break;
     case false:
-      feedback.textContent = i18n.t(`feedback.${error}`);
+      feedback.textContent = i18n.t(`feedback.errors.${error}`);
       feedback.classList.remove('text-success');
       feedback.classList.add('text-danger');
       input.classList.add('is-invalid');
       break;
     default:
       break;
-      // console.log('dafault feedback:', status);
   }
 };
 
@@ -165,7 +163,6 @@ const renderModal = (state, elements) => {
 
 const view = (state, elements) => {
   const watchedState = onChange(state, (path) => {
-    // console.log('watchedState path:', path);
     switch (path) {
       case 'form':
         renderForm(watchedState, elements);

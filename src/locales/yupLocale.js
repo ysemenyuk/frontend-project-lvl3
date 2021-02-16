@@ -1,9 +1,9 @@
 export default {
   string: {
-    url: () => ({ key: 'inputUrlErr' }),
+    url: () => ({ key: 'validUrl' }),
   },
   mixed: {
     required: () => ({ key: 'required' }),
-    notOneOf: () => ({ key: 'existingUrlErr' }),
+    notOneOf: () => ({ key: 'existing' }),
   },
 };

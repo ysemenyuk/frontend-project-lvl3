@@ -1,9 +1,8 @@
 import 'bootstrap/js/dist/modal.js';
 import i18n from 'i18next';
 import { setLocale } from 'yup';
-// import yupLocale from './locales/yupLocale.js';
-// import './locales/yupLocale.js';
 
+import yupLocale from './locales/yupLocale.js';
 import resources from './locales/index.js';
 import view from './view.js';
 import { exampleHandler, submitHandler, postsHandler } from './handlers.js';
@@ -45,14 +44,7 @@ const app = () => {
     modalFullArticle: document.querySelector('.full-article'),
   };
 
-  setLocale({
-    string: {
-      url: 'inputUrlErr',
-    },
-    mixed: {
-      notOneOf: 'existingUrlErr',
-    },
-  });
+  setLocale(yupLocale);
 
   const i18nOptions = {
     lng: defaultLanguage,
@@ -67,8 +59,8 @@ const app = () => {
       const { form, postsContainer, example } = elements;
 
       form.addEventListener('submit', (e) => submitHandler(e, watched));
-      postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
       example.addEventListener('click', (e) => exampleHandler(e, watched));
+      postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
     });
 };
 

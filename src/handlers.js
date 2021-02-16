@@ -61,7 +61,7 @@ export const submitHandler = (e, state) => {
 
   const errorInput = validateInput(url, state);
   if (errorInput) {
-    state.form = { valid: false, error: errorInput };
+    state.form = { valid: false, error: errorInput.key };
     return;
   }
   state.form = { valid: true, error: null };
@@ -84,11 +84,11 @@ export const submitHandler = (e, state) => {
     })
     .catch((err) => {
       if (err.isAxiosError) {
-        state.loadingProcess = { status: 'failed', error: 'networkErr' };
+        state.loadingProcess = { status: 'failed', error: 'network' };
       } else if (err.isParsingError) {
-        state.loadingProcess = { status: 'failed', error: 'parsingErr' };
+        state.loadingProcess = { status: 'failed', error: 'parsing' };
       } else {
-        state.loadingProcess = { status: 'failed', error: 'unknownErr' };
+        state.loadingProcess = { status: 'failed', error: 'unknown' };
       }
     });
 };
