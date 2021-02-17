@@ -49,23 +49,22 @@ const app = () => {
 
   setLocale(yupLocale);
 
+  const watched = view(state, elements);
+  watched.form = { status: 'init' };
+
+  const { form, postsContainer, exampleLink } = elements;
+
+  form.addEventListener('submit', (e) => submitHandler(e, watched));
+  exampleLink.addEventListener('click', (e) => exampleHandler(e, watched));
+  postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
+
   const i18nOptions = {
     lng: defaultLanguage,
     debug: false,
     resources,
   };
 
-  return i18n.init(i18nOptions)
-    .then(() => {
-      const watched = view(state, elements);
-      watched.form = { status: 'init' };
-
-      const { form, postsContainer, exampleLink } = elements;
-
-      form.addEventListener('submit', (e) => submitHandler(e, watched));
-      exampleLink.addEventListener('click', (e) => exampleHandler(e, watched));
-      postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
-    });
+  return i18n.init(i18nOptions);
 };
 
 export default app;
