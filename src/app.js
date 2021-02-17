@@ -50,7 +50,7 @@ const app = () => {
 
   const i18nOptions = {
     lng: defaultLanguage,
-    debug: false,
+    debug: true,
     resources,
   };
 
