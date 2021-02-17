@@ -9,7 +9,6 @@ import { exampleHandler, submitHandler, postsHandler } from './handlers.js';
 
 const app = () => {
   const defaultLanguage = 'ru';
-  setLocale(yupLocale);
 
   const state = {
     form: {
@@ -56,6 +55,7 @@ const app = () => {
 
   return i18n.init(i18nOptions)
     .then(() => {
+      setLocale(yupLocale);
       const watched = view(state, elements);
       watched.form = { status: 'init' };
 
