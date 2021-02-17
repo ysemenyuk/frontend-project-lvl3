@@ -11,7 +11,7 @@ const app = () => {
   // const defaultLanguage = 'ru';
 
   const i18nOptions = {
-    lng: 'ru',
+    lng: 'en',
     debug: true,
     resources,
   };
