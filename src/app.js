@@ -13,7 +13,7 @@ const app = () => {
   const i18nOptions = {
     lng: 'ru',
     fallbackLng: 'ru',
-    debug: true,
+    debug: false,
     resources,
   };
 
