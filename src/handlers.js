@@ -61,7 +61,7 @@ export const submitHandler = (e, state) => {
 
   const errorInput = validateInput(url, state);
   if (errorInput) {
-    state.validateInputProcess = { valid: false, error: errorInput.key };
+    state.validateInputProcess = { valid: false, error: errorInput };
     return;
   }
   state.validateInputProcess = { valid: true, error: null };

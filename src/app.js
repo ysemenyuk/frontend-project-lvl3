@@ -22,11 +22,11 @@ const app = () => {
 
       setLocale({
         string: {
-          url: 'inputUrlErr',
+          url: 'validUrl',
         },
         mixed: {
           required: 'required',
-          notOneOf: 'existingUrlErr',
+          notOneOf: 'existing',
         },
       });
 
