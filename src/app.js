@@ -19,7 +19,7 @@ const app = () => {
       error: null,
     },
     loadingProcess: {
-      status: 'idle', // loading, loaded, failed
+      status: 'idle',
       error: null,
     },
     feeds: [],
@@ -45,9 +45,6 @@ const app = () => {
     feedsContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
     modal: document.querySelector('#modal'),
-    modalTitle: document.querySelector('.modal-title'),
-    modalBody: document.querySelector('.modal-body'),
-    modalFullArticle: document.querySelector('.full-article'),
   };
 
   setLocale(yupLocale);
@@ -58,7 +55,7 @@ const app = () => {
     resources,
   };
 
-  i18n.init(i18nOptions)
+  return i18n.init(i18nOptions)
     .then(() => {
       const watched = view(state, elements);
       watched.form = { status: 'init' };

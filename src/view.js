@@ -172,7 +172,10 @@ const renderPosts = (state, elements) => {
 };
 
 const renderModal = (state, elements) => {
-  const { modalTitle, modalBody, modalFullArticle } = elements;
+  const { modal } = elements;
+  const modalTitle = modal.querySelector('.modal-title');
+  const modalBody = modal.querySelector('.modal-body');
+  const modalFullArticle = modal.querySelector('.full-article');
 
   const post = state.posts.find((i) => i.id === state.modal.postId);
 
