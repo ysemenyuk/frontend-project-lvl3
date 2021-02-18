@@ -1,8 +1,9 @@
+/* eslint-disable linebreak-style */
 import 'bootstrap/js/dist/modal.js';
 import i18n from 'i18next';
 import { setLocale } from 'yup';
 
-// import yupLocale from './locales/yupLocale.js';
+import yupLocale from './locales/yupLocale.js';
 import resources from './locales/index.js';
 import view from './view.js';
 import { exampleHandler, submitHandler, postsHandler } from './handlers.js';
@@ -19,17 +20,7 @@ const app = () => {
 
   return i18n.init(i18nOptions)
     .then(() => {
-      // setLocale(yupLocale);
-
-      setLocale({
-        string: {
-          url: 'validUrl',
-        },
-        mixed: {
-          required: 'required',
-          notOneOf: 'existing',
-        },
-      });
+      setLocale(yupLocale);
 
       const state = {
         form: {
