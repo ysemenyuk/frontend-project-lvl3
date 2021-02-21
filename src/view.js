@@ -2,28 +2,20 @@
 import onChange from 'on-change';
 import i18n from 'i18next';
 
-const renderForm = (state, elements) => {
-  const { status } = state.form;
+const renderInitProcess = (state, elements) => {
   const { title, description, example, input, feedback } = elements;
-  switch (status) {
-    case 'init':
-      title.textContent = i18n.t('title');
-      description.textContent = i18n.t('description');
-      input.placeholder = i18n.t('inputPlaceholder');
-      example.textContent = i18n.t('example');
-      break;
-    case 'reset':
-      input.value = '';
-      feedback.textContent = '';
-      break;
-    default:
-      break;
-  }
+
+  title.textContent = i18n.t('title');
+  description.textContent = i18n.t('description');
+
+  input.placeholder = i18n.t('inputPlaceholder');
+  example.textContent = i18n.t('example');
+  feedback.textContent = '';
 };
 
-const renderExample = (state, elements) => {
+const renderFillingProcess = (state, elements) => {
   const { input } = elements;
-  input.value = state.example;
+  input.value = state.form.inputValue;
 };
 
 const renderLoadingProcess = (state, elements) => {
@@ -54,7 +46,7 @@ const renderLoadingProcess = (state, elements) => {
       submit.removeAttribute('disabled');
       break;
     default:
-      break;
+      throw new Error(`unknown status: ${status}`);
   }
 };
 
@@ -76,7 +68,7 @@ const renderValidateInputProcess = (state, elements) => {
       input.classList.add('is-invalid');
       break;
     default:
-      break;
+      throw new Error(`unknown validation: ${valid}`);
   }
 };
 
@@ -92,31 +84,29 @@ const createFeedEl = (feed) => {
 const renderFeeds = (state, elements) => {
   const { feedsContainer } = elements;
 
-  if (state.feeds.length) {
-    const feedsList = document.createElement('ul');
-    feedsList.classList.add('list-group', 'mb-5');
+  const feedsList = document.createElement('ul');
+  feedsList.classList.add('list-group', 'mb-5');
 
-    state.feeds.forEach((feed) => {
-      feedsList.prepend(createFeedEl(feed));
-    });
+  state.feeds.forEach((feed) => {
+    feedsList.prepend(createFeedEl(feed));
+  });
 
-    feedsContainer.innerHTML = '';
-    const title = document.createElement('h2');
-    title.textContent = i18n.t('feeds.title');
-    feedsContainer.append(title);
-    feedsContainer.append(feedsList);
-  } else {
-    feedsContainer.innerHTML = '';
-  }
+  feedsContainer.innerHTML = '';
+  const title = document.createElement('h2');
+  title.textContent = i18n.t('feeds.title');
+  feedsContainer.append(title);
+  feedsContainer.append(feedsList);
 };
 
 const createPostTitle = (post, state) => {
   const title = document.createElement('a');
+
   if (state.ui.seenPosts.has(post.id)) {
     title.classList.add('fw-normal', 'font-weight-normal');
   } else {
     title.classList.add('fw-bold', 'font-weight-bold');
   }
+
   title.setAttribute('target', '_blank');
   title.setAttribute('data-post-id', post.id);
   title.href = post.link;
@@ -127,6 +117,7 @@ const createPostTitle = (post, state) => {
 
 const createPreviewButton = (post) => {
   const button = document.createElement('button');
+
   button.classList.add('btn', 'btn-primary', 'btn-sm');
   button.setAttribute('data-post-id', post.id);
   button.setAttribute('type', 'button');
@@ -153,22 +144,18 @@ const createPostEl = (post, state) => {
 const renderPosts = (state, elements) => {
   const { postsContainer } = elements;
 
-  if (state.posts.length) {
-    const postsList = document.createElement('ul');
-    postsList.classList.add('list-group', 'mb-5');
+  const postsList = document.createElement('ul');
+  postsList.classList.add('list-group', 'mb-5');
 
-    state.posts.forEach((post) => {
-      postsList.prepend(createPostEl(post, state));
-    });
+  state.posts.forEach((post) => {
+    postsList.prepend(createPostEl(post, state));
+  });
 
-    postsContainer.innerHTML = '';
-    const title = document.createElement('h2');
-    title.textContent = i18n.t('posts.title');
-    postsContainer.append(title);
-    postsContainer.append(postsList);
-  } else {
-    postsContainer.innerHTML = '';
-  }
+  postsContainer.innerHTML = '';
+  const title = document.createElement('h2');
+  title.textContent = i18n.t('posts.title');
+  postsContainer.append(title);
+  postsContainer.append(postsList);
 };
 
 const renderModal = (state, elements) => {
@@ -187,8 +174,11 @@ const renderModal = (state, elements) => {
 const view = (state, elements) => {
   const watchedState = onChange(state, (path) => {
     switch (path) {
-      case 'form':
-        renderForm(watchedState, elements);
+      case 'form.status':
+        renderInitProcess(watchedState, elements);
+        break;
+      case 'form.inputValue':
+        renderFillingProcess(watchedState, elements);
         break;
       case 'validateInputProcess':
         renderValidateInputProcess(watchedState, elements);
@@ -206,11 +196,8 @@ const view = (state, elements) => {
       case 'modal':
         renderModal(watchedState, elements);
         break;
-      case 'example':
-        renderExample(watchedState, elements);
-        break;
       default:
-        break;
+        throw new Error(`unknown state path: ${path}`);
     }
   });
 

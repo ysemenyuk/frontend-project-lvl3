@@ -8,8 +8,7 @@ import differenceBy from 'lodash/differenceBy';
 
 import parseRss from './parseRss.js';
 
-const validateInput = (value, state) => {
-  const existingUrls = state.feeds.map((feed) => feed.url);
+const validateInput = (value, existingUrls) => {
   const schema = yup.string().required().url().notOneOf(existingUrls);
   try {
     schema.validateSync(value);
@@ -32,7 +31,9 @@ const updateFeed = (feed, state) => {
     .then((response) => {
       const { posts } = parseRss(response.data.contents);
       const diffPosts = differenceBy(posts, state.posts, 'title');
-      if (diffPosts.length) {
+      // const newPosts = diffPosts.map((post) => ({ ...post, id: uniqueId(), feedId: feed.id }));
+      // state.posts = [...state.posts, ...newPosts];
+      if (diffPosts.length !== 0) {
         const newPosts = diffPosts.map((post) => ({ ...post, id: uniqueId(), feedId: feed.id }));
         state.posts = [...state.posts, ...newPosts];
       }
@@ -48,9 +49,11 @@ const autoUpdateFeed = (feed, state, updateTimeout) => {
 };
 
 export const exampleHandler = (e, state) => {
-  e.preventDefault();
-  state.example = '';
-  state.example = e.target.textContent;
+  state.form.inputValue = e.target.textContent;
+};
+
+export const inputHandler = (e, state) => {
+  state.form.inputValue = e.target.value;
 };
 
 export const submitHandler = (e, state) => {
@@ -59,7 +62,8 @@ export const submitHandler = (e, state) => {
   const formData = new FormData(e.target);
   const url = formData.get('url');
 
-  const errorInput = validateInput(url, state);
+  const existingUrls = state.feeds.map((feed) => feed.url);
+  const errorInput = validateInput(url, existingUrls);
   if (errorInput) {
     state.validateInputProcess = { valid: false, error: errorInput.key };
     return;

@@ -6,11 +6,11 @@ import { setLocale } from 'yup';
 import yupLocale from './locales/yupLocale.js';
 import resources from './locales/index.js';
 import view from './view.js';
-import { exampleHandler, submitHandler, postsHandler } from './handlers.js';
+import {
+  inputHandler, exampleHandler, submitHandler, postsHandler,
+} from './handlers.js';
 
 const app = () => {
-  // const defaultLanguage = 'ru';
-
   const i18nOptions = {
     lng: 'ru',
     fallbackLng: 'ru',
@@ -25,6 +25,7 @@ const app = () => {
       const state = {
         form: {
           status: null,
+          inputValue: null,
         },
         validateInputProcess: {
           valid: false,
@@ -42,7 +43,6 @@ const app = () => {
         ui: {
           seenPosts: new Set(),
         },
-        example: null,
       };
 
       const elements = {
@@ -60,11 +60,15 @@ const app = () => {
       };
 
       const watched = view(state, elements);
-      watched.form = { status: 'init' };
+      watched.form.status = 'init';
+      watched.form.inputValue = '';
 
-      const { form, postsContainer, exampleLink } = elements;
+      const {
+        form, input, postsContainer, exampleLink,
+      } = elements;
 
       form.addEventListener('submit', (e) => submitHandler(e, watched));
+      input.addEventListener('input', (e) => inputHandler(e, watched));
       exampleLink.addEventListener('click', (e) => exampleHandler(e, watched));
       postsContainer.addEventListener('click', (e) => postsHandler(e, watched));
     });
